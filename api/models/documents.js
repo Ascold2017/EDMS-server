@@ -47,6 +47,12 @@ const DocumentShema = new Schema({
             },
             role: {
                 type: String,
+            },
+            status: {
+                type: String,
+            },
+            comment: {
+                type: String,
             }
         }
     ]
