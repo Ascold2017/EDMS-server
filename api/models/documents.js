@@ -18,7 +18,11 @@ const DocumentShema = new Schema({
         default: mongoose.Types.ObjectId(),
     },
     state: {
-        type: String,
+        type: Number,
+        required: true,
+    },
+    total: {
+        type: Number,
         required: true,
     },
     globalStatus: {
@@ -46,6 +50,12 @@ const DocumentShema = new Schema({
                 type: String,
             },
             role: {
+                type: String,
+            },
+            status: {
+                type: String,
+            },
+            comment: {
                 type: String,
             }
         }
