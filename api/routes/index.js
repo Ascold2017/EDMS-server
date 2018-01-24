@@ -10,5 +10,6 @@ router.post('/postVote', documents.postVote);
 router.post('/postNewDocument', documents.addNewDocument);
 
 router.get('/getAllUsers', users.getAllUsers);
+router.get('/getCurrentUser', users.getCurrentUser);
 
 module.exports = router;

@@ -18,7 +18,11 @@ const DocumentShema = new Schema({
         default: mongoose.Types.ObjectId(),
     },
     state: {
-        type: String,
+        type: Number,
+        required: true,
+    },
+    total: {
+        type: Number,
         required: true,
     },
     globalStatus: {

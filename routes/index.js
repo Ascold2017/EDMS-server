@@ -10,4 +10,6 @@ router.post('/sign-in', index.signIn);
 
 router.post('/registration', index.registration);
 
+router.post('/logout', index.logout);
+
 module.exports = router;

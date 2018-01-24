@@ -46,18 +46,18 @@ app.use(session({
   cookie: {
     path: '/',
     httpOnly: true,
-    maxAge: null
+    maxAge: null,
   },
   saveUninitialized: false,
   resave: false,
   store: new MongoStore({mongooseConnection: mongoose.connection})
 }));
 
-const isValid = (req, res, next) => {
+const isAuth = (req, res, next) => {
   // если в сессии текущего пользователя есть пометка о том, что он является
   // администратором
-  if (req.session.isAdmin) {
-    //то всё хорошо :)
+  if (req.session.isAuth) {
+    //то всё хорошо
     return next();
   }
   //если нет, то перебросить пользователя на главную страницу сайта
@@ -65,11 +65,12 @@ const isValid = (req, res, next) => {
 };
 
 app.use('/', authorization);
-/*
-app.use('/edms', (req, res) => {
-  res.sendFile(path.resolve(__dirname, './public', 'index.html'));
+
+app.use('/edms', isAuth, (req, res) => {
+  res.sendFile(path.resolve(__dirname, './public', 'edms.html'));
+  // res.redirect('http://localhost:8080/edms');
 });
-*/
+
 app.use('/api', api);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -86,7 +87,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('pages/error');
+  res.render('pages/404');
 });
 
 module.exports = app;
