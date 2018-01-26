@@ -77,6 +77,10 @@ module.exports.postVote = (req, res) => {
                 // if author not exist
                 res.status(400).json({ message: 'Вы не можете проголосовать!' });
             }
+            if(author.status !== 'waiting') {
+                // if author not exist
+                res.status(400).json({ message: 'Вы уже проголосовали!' });
+            }
             // set changes for author
             author.status = req.body.vote;
             author.comment = req.body.comment;
