@@ -5,5 +5,17 @@
       "name": "edms_bd",
       "user": "admin",
       "password": "admin"
+    },
+    "mail": {
+      "subject": "Сообщение с EDMS",
+      "smtp": {
+        "host": "smtp.gmail.com",
+        "port": 465,
+        "secure": true,
+        "auth": {
+          "user": "ascold96@gmail.com",
+          "pass": "25071996"
+        }
+      }
     }
 }

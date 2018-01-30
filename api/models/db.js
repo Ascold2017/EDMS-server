@@ -39,5 +39,5 @@ process.on('SIGINT', function() {
 });
 
 // require post db model
-require('./users');
+require('./groups');
 require('./documents');

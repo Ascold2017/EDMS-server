@@ -32,10 +32,12 @@ module.exports.addNewDocument = (req, res) => {
     if (!fs.existsSync(upload)) {
         fs.mkdirSync(upload);
     }
+    
     // uploading file
     form.uploadDir = path.join(process.cwd(), upload);
     // parsing req form
     form.parse(req, function (err, fields, files) {
+        console.log(files.file);
         // get filename
         fileName = path.join(upload, files.file.name);
         // rename file
