@@ -9,7 +9,7 @@ module.exports = (req, res) => {
     const mailOptions = {
       from: `"Администратор EDMS" <ascold96@gmail.com>`,
       to: req.body.email,
-      subject: config.mail.subject,
+      subject: req.body.subject,
       text: `Ваш логин EDMS: ${req.body.login} \n Ваш инвайт-код: ${req.body.token}\n Инвайт-код группы: ${ req.body.groupInvite ? req.body.groupInvite : req.body.token} \n Не говорите их никому!`,
     };
       //отправляем почту

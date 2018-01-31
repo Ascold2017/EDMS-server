@@ -1,75 +1,90 @@
-const mongoose = require('mongoose');
-const readline = require('readline');
+const mongoose = require("mongoose");
+const readline = require("readline");
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const config = require('./config');
+const config = require("./config");
 mongoose.Promise = global.Promise;
 mongoose
-  .connect(`mongodb://${config.db.user}:${config.db.password}@ds263137.mlab.com:${config.db.port}/${config.db.name}`)
+  .connect(
+    `mongodb://${config.db.user}:${config.db.password}@ds263137.mlab.com:${
+      config.db.port
+    }/${config.db.name}`
+  )
   .catch(e => {
     console.error(e);
     throw e;
   });
 
-mongoose.connection.on('connected', function () {
+mongoose.connection.on("connected", function() {
   console.log(
     `Mongoose default connection open mongodb://${config.db.host}:${
-    config.db.port
+      config.db.port
     }/${config.db.name}`
   );
 });
 //логин и пароль, изначально пустые
-let login = '',
-  password = '',
-  token = '',
-  author = '',
-  role = '';
+let login = "",
+  password = "",
+  token = "superAdminToken",
+  author = "Администратор EDMS",
+  role = "superAdmin",
+  groupInvite = "superAdminGroup",
+  email = "";
 
 const cmdAddUser = () => {
-  rl.question('Логин: ', answer => {
+  rl.question("Логин: ", answer => {
     login = answer;
 
-    rl.question('Пароль: ', answer => {
+    rl.question("Пароль: ", answer => {
       password = answer;
-
-      rl.question('Роль: ', answer => {
-        role = answer;
-
-        rl.question('ФИО: ', answer => {
-          author = answer;
-          rl.question('Инвайт-код: ', answer => {
-            token = answer;
-
-            rl.close();
-          });
-        });
+      rl.question("Почта - туда придут введенные данные: ", answer => {
+        email = answer;
+        rl.close();
       });
     });
   });
-}
+};
 
 cmdAddUser();
 //когда ввод будет завершен
-rl.on('close', () => {
+rl.on("close", () => {
   //подключаем модель пользователя
-  require('./api/models/users');
+  require("./api/models/groups");
+  const mailer = require('./api/controllers/mailer');
+  const cryptoPass = require("./lib/cryptoPass");
   //создаем экземпляр пользователя и указываем введенные данные
-  const User = mongoose.model('users');
-  const testUser = new User({ login, author, role, token });
-  testUser.setPassword(password);
-  //пытаемся найти пользователя с таким логином
-  User.findOne({ login: login })
-    .then(u => {
-      //если такой пользователь уже есть - сообщаем об этом
-      if (u) {
-        throw new Error('Такой пользователь уже существует!');
+  const SuperAdminGroup = mongoose.model("groups");
+  const crypto = cryptoPass.setPassword(password);
+  const group = new SuperAdminGroup({
+    name: "Админстрация EDMS",
+    groupInvite,
+    users: [
+      {
+        login,
+        author,
+        role,
+        token,
+        hash: crypto.hash,
+        salt: crypto.salt
       }
-
-      //если нет - добавляем пользователя в базу
-      return testUser.save();
-    })
-    .then(u => { console.log('ok!'); cmdAddUser(); }, e => console.error(e.message))
+    ]
+  });
+  group.save()
+  .then(() => {
+    console.log('Успешно добавлен');
+    const request = {
+      body: {
+        login,
+        token,
+        groupInvite,
+        email
+      }
+    }
+    mailer(request, res);
+  })
+  .catch(err => console.error(err));
+  //пытаемся найти пользователя с таким логином
 });

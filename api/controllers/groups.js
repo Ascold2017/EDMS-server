@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Groups = mongoose.model("groups");
+
 module.exports.getAllUsers = (req, res) => {
   Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}})
     .select('users')
@@ -13,7 +14,8 @@ module.exports.getAllUsers = (req, res) => {
           role: user.role,
           login: user.login,
           author: user.author,
-          token: user.token
+          token: user.token,
+          
         };
         users.push(showUser);
       });
@@ -24,23 +26,21 @@ module.exports.getAllUsers = (req, res) => {
 
 module.exports.getCurrentUser = (req, res) => {
   console.log("userId", req.session.userId);
-  Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}})
-    .select('users')
-    .exec((err, usersObj) => {
+  Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}}, (err, doc) => {
+    if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
 
-      if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
-
-      const user = usersObj.users.find(user => user._id == req.session.userId);
-      const showUser = {
-        _id: user._id,
-        role: user.role,
-        login: user.login,
-        author: user.author,
-        token: user.token
-      };
-      console.log(showUser);
-      res.status(201).json(showUser)
-    });
+    const user = doc.users.find(user => user._id == req.session.userId);
+    const showUser = {
+      _id: user._id,
+      role: user.role,
+      login: user.login,
+      author: user.author,
+      token: user.token,
+      groupInvite: doc.groupInvite,
+    };
+    console.log(showUser);
+    res.status(201).json(showUser)
+  });
 };
 
 module.exports.getAllGroups = (req, res) => {

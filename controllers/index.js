@@ -24,23 +24,30 @@ module.exports.signIn = (req, res) => {
 module.exports.registration = (req, res) => {
     
     Groups.findOne({ groupInvite: req.body.groupInvite, }, (err, doc) => {
-        doc.users.map(user => {
-            if (user.login === req.body.userLogin && user.token === req.body.userInvite ) {
-                const crypto = cryptoPass.setPassword(req.body.userPassword[0]);
-                user.author = req.body.userName;
-                user.salt = crypto.salt
-                user.hash = crypto.hash;
-                console.log(user);
-            }
-            else return user;
-        });
-        console.log('Group: ', doc);
-        doc.save()
-            .then(response => res.status(200).json({ message: 'Вы успешно зарегистрировались!' }))
-            .catch(err => res.status(400).json({
-                message: `При регистрации пользователя произошла ошибка:  + ${err.message}`
-            }));
-
+        console.log(doc);
+        if (doc) {
+            doc.users.map(user => {
+                if (user.login === req.body.userLogin && user.token === req.body.userInvite ) {
+                    const crypto = cryptoPass.setPassword(req.body.userPassword[0]);
+                    user.author = req.body.userName;
+                    user.salt = crypto.salt
+                    user.hash = crypto.hash;
+                    console.log(user);
+                }
+                else return user;
+            });
+            console.log('Group: ', doc);
+            doc.save()
+                .then(response => res.status(200).json({ message: 'Вы успешно зарегистрировались!' }))
+                .catch(err => res.status(400).json({
+                    error: `При регистрации пользователя произошла ошибка:  + ${err.message}`
+                }));
+            
+        } else {
+            res.status(400).json({
+                error: `Неверные инвайты!`
+            })
+        }
     })
     .catch(err => res.status(400).json({
         message: `При регистрации пользователя произошла ошибка (пользователя не существует):  + ${err.message}`
