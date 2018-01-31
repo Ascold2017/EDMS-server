@@ -1,29 +1,57 @@
 const mongoose = require("mongoose");
-const groups = mongoose.model("groups");
+const Groups = mongoose.model("groups");
 module.exports.getAllUsers = (req, res) => {
-  groups.users
-    .find({}, { token: 0, salt: 0, hash: 0 })
-    .then(items => res.send(items))
-    .catch(e => console.error(e));
+  Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}})
+    .select('users')
+    .exec((err, usersObj) => {
+      
+      if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
+      let users = [];
+      usersObj.users.map(user => {
+        const showUser = {
+          _id: user._id,
+          role: user.role,
+          login: user.login,
+          author: user.author,
+          token: user.token
+        };
+        users.push(showUser);
+      });
+
+      res.status(201).json(users);
+    });
 };
 
 module.exports.getCurrentUser = (req, res) => {
   console.log("userId", req.session.userId);
-  groups.users
-    .findById(req.session.userId, { salt: 0, hash: 0 })
-    .then(user => res.status(201).json(user))
-    .catch(e => console.error(e));
+  Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}})
+    .select('users')
+    .exec((err, usersObj) => {
+
+      if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
+
+      const user = usersObj.users.find(user => user._id == req.session.userId);
+      const showUser = {
+        _id: user._id,
+        role: user.role,
+        login: user.login,
+        author: user.author,
+        token: user.token
+      };
+      console.log(showUser);
+      res.status(201).json(showUser)
+    });
 };
 
 module.exports.getAllGroups = (req, res) => {
-  groups
+  Groups
     .find()
     .then(groups => res.status(201).json(groups))
     .catch(e => console.error(e));
 };
 
 module.exports.getGroupByToken = (req, res) => {
-  groups
+  Groups
     .find({ groupInvite: req.params.token })
     .then(groups => res.status(201).json(groups))
     .catch(e => console.error(e));
@@ -39,7 +67,7 @@ module.exports.createGroup = (req, res) => {
       token: req.body.adminInvite,
       login: req.body.adminLogin }]
   };
-  const newGroup = new groups(newGroupBody);
+  const newGroup = new Groups(newGroupBody);
   console.log(newGroup);
   newGroup
     .save()
@@ -54,7 +82,7 @@ module.exports.createGroup = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   console.log(req.body);
-  groups
+  Groups
     .findById(req.body.group)
     .then(group => {
       group.users.push({ token: req.body.invite, role: req.body.role, login: req.body.login });

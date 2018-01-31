@@ -8,9 +8,7 @@ module.exports.signIn = (req, res) => {
         .select('users')
         .exec((err, usersObj) => {
             if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
-            console.log(req.body.userPassword);
             const user = usersObj.users.find(user => user.login === req.body.userLogin);
-            console.log(user);
             if (cryptoPass.validPassword(user.hash, user.salt, req.body.userPassword)) {
                 // create cookies
                 req.session.isAuth = true;
