@@ -1,38 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Groups = mongoose.model('groups');
+const cryptoPass = require('../lib/cryptoPass');
 
 module.exports.signIn = (req, res) => {
     Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}})
-        .then(findedGroup => {
-            // user with login exist
-            console.log(findedGroup);
-            /*
-            if (findedGroup.users.length) {
-                // user with valid password
-                if (findedUser[0].validPassword(req.body.userPassword)) {
-                    // create cookies
-                    req.session.isAuth = true;
-                    req.session.userId = findedUser[0]._id;
-                    // and send response
-                    res.status(200).json({ message: 'Вы успешно авторизовались!' });
-                }
-                // password invalid
-                else {
-                    res.status(400).json({ error: 'Неверный пароль!'});
-                }
+        .select('users')
+        .exec((err, usersObj) => {
+            if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
+            console.log(req.body.userPassword);
+            const user = usersObj.users.find(user => user.login === req.body.userLogin);
+            console.log(user);
+            if (cryptoPass.validPassword(user.hash, user.salt, req.body.userPassword)) {
+                // create cookies
+                req.session.isAuth = true;
+                req.session.userId = user._id;
+                // and send response
+                res.status(200).json({ message: 'Вы успешно авторизовались!' });
+            } else {
+                res.status(400).json({ error: 'Неверный пароль!'});
             }
-            // user with login not exist
-            else {
-                res.status(400).json({ error: 'Пользователь не найден!'});
-            }
-            */
-        })
-        .catch(err => res.status(400).json({
-            message: `При поиске пользователя произошла ошибка:  + ${err.message}`
-        }));
+        });
 }
-const cryptoPass = require('../lib/cryptoPass');
+
 module.exports.registration = (req, res) => {
     
     Groups.findOne({ groupInvite: req.body.groupInvite, }, (err, doc) => {
