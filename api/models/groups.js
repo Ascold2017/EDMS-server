@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const crypto = require('crypto');
+
 const Schema = mongoose.Schema;
 const GroupsShema = new Schema({
     name: {
@@ -30,20 +30,6 @@ const GroupsShema = new Schema({
     ]
 });
 
-GroupsShema.methods.setPassword = function (password) {
-    this.users.salt = crypto
-        .randomBytes(16)
-        .toString('hex');
-    this.hash = crypto
-        .pbkdf2Sync(password, this.users.salt, 1000, 512, 'sha512')
-        .toString('hex');
-};
 
-GroupsShema.methods.validPassword = function (password) {
-    var hash = crypto
-        .pbkdf2Sync(password, this.users.salt, 1000, 512, 'sha512')
-        .toString('hex');
-    return this.users.hash === hash;
-};
 
 mongoose.model('groups', GroupsShema);

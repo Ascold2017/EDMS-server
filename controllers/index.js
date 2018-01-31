@@ -32,36 +32,32 @@ module.exports.signIn = (req, res) => {
             message: `При поиске пользователя произошла ошибка:  + ${err.message}`
         }));
 }
+const cryptoPass = require('../lib/cryptoPass');
 module.exports.registration = (req, res) => {
-    // 
-    Groups.findOne({ groupInvite: req.body.groupInvite })
-        .then(findedGroup => {
-            if (!findedGroup) {
-                res.status(400).json({ error: 'Такой группы не существует!' });
-            } else {
-                console.log(req.body.userLogin, req.body.userInvite)
-                Groups.find({ $and: [{"users.login": req.body.userLogin}, {"users.token": req.body.userInvite }] },{ users: 1 })
-                    .then(findedUser => {
-                        console.log(findedUser);
-                        if (!findedUser.length) {
-                            res.status(400).send({ message: 'такого пользователя не существует!'});
-                        } else {
-                            findedUser[0].author = req.body.userName,
-                            findedUser[0].setPassword(req.body.userPassword[0]);
-                            findedUser[0].save()
-                            .then(() => 
-                                res.status(200).send({ message: 'Вы успешно зарегистрировались!'}))
-                            .catch(err => res.status(400).json({
-                                error: `При добавлении пользователя произошла ошибка:  + ${err.message}`
-                            }));
-                        }
-                    });
+    
+    Groups.findOne({ groupInvite: req.body.groupInvite, }, (err, doc) => {
+        doc.users.map(user => {
+            if (user.login === req.body.userLogin && user.token === req.body.userInvite ) {
+                const crypto = cryptoPass.setPassword(req.body.userPassword[0]);
+                user.author = req.body.userName;
+                user.salt = crypto.salt
+                user.hash = crypto.hash;
+                console.log(user);
             }
-        })
-        .catch(err => res.status(400).json({
-            error: `При регистрации пользователя произошла ошибка:  + ${err.message}`
-        }));
-};
+            else return user;
+        });
+        console.log('Group: ', doc);
+        doc.save()
+            .then(response => res.status(200).json({ message: 'Вы успешно зарегистрировались!' }))
+            .catch(err => res.status(400).json({
+                message: `При регистрации пользователя произошла ошибка:  + ${err.message}`
+            }));
+
+    })
+    .catch(err => res.status(400).json({
+        message: `При регистрации пользователя произошла ошибка (пользователя не существует):  + ${err.message}`
+    }));;
+}
 
 module.exports.logout = (req, res) => {
     req.session.destroy();
