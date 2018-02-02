@@ -27,8 +27,11 @@ module.exports.getAllUsers = (req, res) => {
 module.exports.getCurrentUser = (req, res) => {
   console.log("userId", req.session.userId);
   Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}}, (err, doc) => {
-    if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
-
+    if (err) res.status(400).json({ error: 'Произошла ошибка: ' + err});
+    if (!doc) {
+      res.status(400).json({ error: 'Произошла ошибка - пользователь не найден' });
+      return;
+    }
     const user = doc.users.find(user => user._id == req.session.userId);
     const showUser = {
       _id: user._id,

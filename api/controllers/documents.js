@@ -5,9 +5,11 @@ const path = require('path');
 
 module.exports.getPreviewsByToken = (req, res) => {
     const documents = mongoose.model('documents');
-    console.log('Token: ', req.params.token);
-    documents.find({ token: req.params.token }, { document: 0 })
-        .then(items => res.status(201).json(items))
+    documents.find({"routes._id": req.session.userId }, { document: 0 })
+        .then(items => {
+            console.log(req.session.userId);
+            res.status(201).json(items);
+        })
         .catch(e => { console.error(e); res.status(404).json({}); });
 };
 

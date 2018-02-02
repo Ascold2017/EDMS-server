@@ -5,7 +5,7 @@ const groups = require('../controllers/groups');
 const documents = require('../controllers/documents');
 const mailer = require('../controllers/mailer');
 
-router.get('/getPreviews/:token', documents.getPreviewsByToken);
+router.get('/getPreviews', documents.getPreviewsByToken);
 router.get('/getDocument/:id', documents.getDocumentById);
 router.post('/postVote', documents.postVote);
 router.post('/postNewDocument', documents.addNewDocument);

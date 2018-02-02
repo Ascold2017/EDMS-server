@@ -7,8 +7,18 @@ module.exports.signIn = (req, res) => {
     Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}})
         .select('users')
         .exec((err, usersObj) => {
+            console.log(usersObj);
             if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
+            if (!usersObj) {
+                res.status(400).json({ error: 'Пользователь не найден!'});
+                return;
+            }
             const user = usersObj.users.find(user => user.login === req.body.userLogin);
+            if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
+            if (!user || !user.hash) {
+                res.status(400).json({ error: 'Пользователь не найден!'});
+                return;
+            }
             if (cryptoPass.validPassword(user.hash, user.salt, req.body.userPassword)) {
                 // create cookies
                 req.session.isAuth = true;
