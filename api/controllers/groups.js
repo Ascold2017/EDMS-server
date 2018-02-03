@@ -9,15 +9,17 @@ module.exports.getAllUsers = (req, res) => {
       if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
       let users = [];
       usersObj.users.map(user => {
-        const showUser = {
-          _id: user._id,
-          role: user.role,
-          login: user.login,
-          author: user.author,
-          token: user.token,
-          
-        };
-        users.push(showUser);
+        if (user.role !== 'Admin') {
+          const showUser = {
+            _id: user._id,
+            role: user.role,
+            login: user.login,
+            author: user.author,
+            token: user.token,
+            
+          };
+          users.push(showUser);
+        }
       });
 
       res.status(201).json(users);

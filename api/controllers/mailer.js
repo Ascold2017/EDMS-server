@@ -14,6 +14,6 @@ module.exports = (req, res) => {
     };
       //отправляем почту
       transporter.sendMail(mailOptions)
-      .then(() => res.send({result: true}))
-      .catch(e => console.error('error', e));
+      .then(() => res.status(200).json({result: true}))
+      .catch(e => { console.error('error', e); res.status(400).json({ error: 'Произошла ошибка при отправке!' }); });
   } 

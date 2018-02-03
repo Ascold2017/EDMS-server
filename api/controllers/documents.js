@@ -71,7 +71,6 @@ module.exports.addNewDocument = (req, res) => {
 module.exports.postVote = (req, res) => {
     const document = mongoose.model('documents');
     console.log(req.body);
-    // if (req.body.token exist && req.body.author exist) todo
 
     document.findById(req.body.id)
         .then((doc) => {
@@ -80,10 +79,12 @@ module.exports.postVote = (req, res) => {
             if(!author || doc.routes.find(route => route.author === author)) {
                 // if author not exist
                 res.status(400).json({ message: 'Вы не можете проголосовать!' });
+                return;
             }
             if(author.status !== 'waiting') {
                 // if author not exist
                 res.status(400).json({ message: 'Вы уже проголосовали!' });
+                return;
             }
             // set changes for author
             author.status = req.body.vote;
