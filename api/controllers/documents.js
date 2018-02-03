@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const formidable = require('formidable');
 const fs = require('fs');
 const path = require('path');
+const documents = mongoose.model('documents');
 
 module.exports.getPreviewsByToken = (req, res) => {
-    const documents = mongoose.model('documents');
     documents.find({"routes._id": req.session.userId }, { document: 0 })
         .then(items => {
             console.log(req.session.userId);
@@ -14,7 +14,6 @@ module.exports.getPreviewsByToken = (req, res) => {
 };
 
 module.exports.getDocumentById = (req, res) => {
-    const documents = mongoose.model('documents');
 
     documents.findById(req.params.id)
         .then(item => {
@@ -56,8 +55,7 @@ module.exports.addNewDocument = (req, res) => {
             let fieldsRoutes = JSON.parse(fields.routes);
 
             // add document (files and fields) to BD
-            const document = mongoose.model('documents');
-            let newDocument = new document({ ...fields, routes: fieldsRoutes, document: dir });
+            let newDocument = new documents({ ...fields, routes: fieldsRoutes, document: dir });
             newDocument.save()
                 .then(() => res.status(201).json({ message: 'Запись успешно добавлена' }))
                 .catch(e => res.status(400).json({
@@ -69,11 +67,11 @@ module.exports.addNewDocument = (req, res) => {
 };
 
 module.exports.postVote = (req, res) => {
-    const document = mongoose.model('documents');
-    console.log(req.body);
+    console.log(req.body.id);
 
-    document.findById(req.body.id)
+    documents.findById(req.body.id)
         .then((doc) => {
+            console.log(doc);
             // find author of vote in routes
             let author = doc.routes.find(route => route.author === req.body.author.author)
             if(!author || doc.routes.find(route => route.author === author)) {
@@ -100,8 +98,23 @@ module.exports.postVote = (req, res) => {
                     res.status(201).json({ message: 'Голос зачтен!' });
                 })
                 .catch(err => res.status(400).json({
-                        message: `При обновлении записи произошла ошибка:  + ${err.message}`
+                        message: `При обновлении записи произошла ошибка: ${err.message}`
                     })
                 );
         });
+};
+
+const documentPresets = mongoose.model('documentsPresets');
+
+module.exports.getPresets = (req, res) => {
+    documentPresets.find({})
+    .then(presets => { console.log(presets); res.status(201).json(presets); })
+    .catch(err => res.status(400).json({ message: 'При поиске пресетов произошла ошибка: ' + err.message }));
+}
+
+module.exports.createPreset = (req, res) => {
+    console.log(req.body);
+    let newPreset = new documentPresets(req.body);
+    newPreset.save()
+    .then(() => res.status(201).json({message: 'Пресет успешно добавлен!'}))
 }

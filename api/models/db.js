@@ -41,3 +41,4 @@ process.on('SIGINT', function() {
 // require post db model
 require('./groups');
 require('./documents');
+require('./docsPresets');

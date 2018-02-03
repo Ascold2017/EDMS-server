@@ -6,7 +6,8 @@ module.exports.getAllUsers = (req, res) => {
     .select('users')
     .exec((err, usersObj) => {
       
-      if (err) resolve.status(400).json({ error: 'Произошла ошибка: ' + err});
+      if (err) { res.status(400).json({ error: 'Произошла ошибка: ' + err}); return; }
+      if(!usersObj) { res.status(400).json({ error: 'Такой группы нет!' }); return; }
       let users = [];
       usersObj.users.map(user => {
         if (user.role !== 'Admin') {
