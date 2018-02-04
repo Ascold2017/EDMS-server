@@ -13,6 +13,15 @@ module.exports.getPreviewsByToken = (req, res) => {
         .catch(e => { console.error(e); res.status(404).json({}); });
 };
 
+module.exports.getOurPreviews = (req, res) => {
+    documents.find({ author_id: req.session.userId })
+        .then(items => {
+            console.log(req.session.userId);
+            res.status(201).json(items);
+        })
+        .catch(e => { console.error(e); res.status(404).json([]); });
+};
+
 module.exports.getDocumentById = (req, res) => {
 
     documents.findById(req.params.id)
