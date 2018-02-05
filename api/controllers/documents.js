@@ -160,15 +160,21 @@ module.exports.postVote = (req, res) => {
     doc.state++;
     // check globalStatus
     let checkAllWaiting = false;
-    // if new vote is no reject and all routes completed
+    // if new vote is no reject and all routes not completed
     if (author.status !== "reject" && doc.state < doc.total) {
       // go to next route - allow see doc for next author in routes
       console.log('currentIndex', currentIndex);
       doc.routes[currentIndex + 1].canSee = 'yes';
-    } else if (author.status === "reject") {
+    } else
+    // new vote is reject
+    if (author.status === "reject") {
       doc.globalStatus = "rejected";
-    } else {
+      // todo - send mail
+    }
+    // new vote is resolve and its last author in routes
+    else {
         doc.globalStatus = "resolved";
+        // todo - send mail
     }
     // save changes
     doc

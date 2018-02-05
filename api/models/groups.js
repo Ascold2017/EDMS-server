@@ -21,6 +21,9 @@ const GroupsShema = new Schema({
             token: {
                 type: String
             },
+            email: {
+                type: String
+            },
             login: {
                 type: String,
             },

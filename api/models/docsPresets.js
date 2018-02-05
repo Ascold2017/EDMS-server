@@ -20,7 +20,7 @@ const DocumentPresetShema = new Schema({
                 type: String,
             },
             canSee: {
-                type: Boolean,
+                type: String,
             },
             comment: {
                 type: String,
