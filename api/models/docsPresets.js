@@ -19,6 +19,9 @@ const DocumentPresetShema = new Schema({
             status: {
                 type: String,
             },
+            canSee: {
+                type: Boolean,
+            },
             comment: {
                 type: String,
             }

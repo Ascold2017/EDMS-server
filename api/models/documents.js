@@ -52,6 +52,9 @@ const DocumentShema = new Schema({
             role: {
                 type: String,
             },
+            canSee: {
+                type: String,
+            },
             status: {
                 type: String,
             },

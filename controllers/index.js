@@ -4,16 +4,14 @@ const Groups = mongoose.model('groups');
 const cryptoPass = require('../lib/cryptoPass');
 
 module.exports.signIn = (req, res) => {
-    Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}})
-        .select('users')
-        .exec((err, usersObj) => {
-            console.log(usersObj);
-            if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
-            if (!usersObj) {
+    Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}}, (err, group) => {
+        console.log(group);
+            if (err) { res.status(400).json({ error: 'Произошла ошибка! ' + err}); return; }
+            if (!group) {
                 res.status(400).json({ error: 'Пользователь не найден!'});
                 return;
             }
-            const user = usersObj.users.find(user => user.login === req.body.userLogin);
+            const user = group.users.find(user => user.login === req.body.userLogin);
             if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
             if (!user || !user.hash) {
                 res.status(400).json({ error: 'Пользователь не найден!'});
@@ -23,12 +21,13 @@ module.exports.signIn = (req, res) => {
                 // create cookies
                 req.session.isAuth = true;
                 req.session.userId = user._id;
+                req.session.userGroup = group.groupInvite;
                 // and send response
                 res.status(200).json({ message: 'Вы успешно авторизовались!' });
             } else {
                 res.status(400).json({ error: 'Неверный пароль!'});
             }
-        });
+    })
 }
 
 module.exports.registration = (req, res) => {
