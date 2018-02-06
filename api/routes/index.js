@@ -15,6 +15,7 @@ router.get('/getArchiveDocuments', documents.getArchiveDocuments);
 router.post('/postVote', documents.postVote);
 router.post('/postNewDocument', documents.addNewDocument);
 router.post('/createPreset', documents.createPreset);
+router.put('/postNewVersion', documents.postNewVersion);
 
 router.get('/getAllUsers', groups.getAllUsers);
 router.get('/getCurrentUser', groups.getCurrentUser);

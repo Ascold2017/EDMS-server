@@ -8,8 +8,8 @@ module.exports.getPreviewsByToken = (req, res) => {
   console.log(req.session.userId);
   documents // 
     .find(
-      { token: req.session.userGroup, routes: { $elemMatch: { _id: req.session.userId, canSee: 'yes' } } },
-      { document: 0 }
+      { groupToken: req.session.userGroup, routes: { $elemMatch: { _id: req.session.userId, canSee: 'yes' } } },
+      { versions: 0 }
     )
     .then(items => {
         items.forEach(item => console.log(item.routes));
@@ -23,7 +23,7 @@ module.exports.getPreviewsByToken = (req, res) => {
 
 module.exports.getOurPreviews = (req, res) => {
   documents
-    .find({ author_id: req.session.userId })
+    .find({ author_id: req.session.userId }, { versions: 0 })
     .then(items => {
       console.log(req.session.userId);
       res.status(201).json(items);
@@ -38,7 +38,7 @@ module.exports.getDocumentById = (req, res) => {
   documents
     .findOne({
         _id: req.params.id,
-        token: req.session.userGroup,
+        groupToken: req.session.userGroup,
         routes: {
             $elemMatch: {
                 _id: req.session.userId,
@@ -64,8 +64,8 @@ module.exports.getMyDocumentById = (req, res) => {
     documents
       .findOne({
           _id: req.params.id,
-          token: req.session.userGroup,
-          "routes._id": req.session.userId,
+          groupToken: req.session.userGroup,
+          "author_id": req.session.userId,
       })
       .then(item => {
         if (!item) {
@@ -95,7 +95,6 @@ module.exports.addNewDocument = (req, res) => {
   form.uploadDir = path.join(process.cwd(), upload);
   // parsing req form
   form.parse(req, function(err, fields, files) {
-    console.log(files.file);
     // get filename
     fileName = path.join(upload, files.file.name);
     // rename file
@@ -113,10 +112,27 @@ module.exports.addNewDocument = (req, res) => {
 
       // add document (files and fields) to BD
       let newDocument = new documents({
-        ...fields,
+        title: fields.title,
+        date: fields.date,
+        author: fields.author,
+        author_id: fields.author_id,
+        state: 0,
+        total: fields.total,
+        globalStatus: 'waiting',
+        groupToken: fields.groupToken,
         routes: fieldsRoutes,
-        document: dir
+        versions: [
+          {
+            file: dir,
+            version: fields.version,
+            date: fields.date,
+            status: 'waiting',
+            description: fields.description,
+          }
+        ]
       });
+      console.log(newDocument);
+      
       newDocument
         .save()
         .then(() =>
@@ -125,6 +141,70 @@ module.exports.addNewDocument = (req, res) => {
         .catch(e =>
           res.status(400).json({
             message: `При добавление записи произошла ошибка:  + ${e.message}`
+          })
+        );
+        
+    });
+  });
+};
+
+module.exports.postNewVersion = (req, res) => {
+  
+  let form = new formidable.IncomingForm();
+  let upload = "public/upload";
+  let fileName;
+
+  // uploading file
+  form.uploadDir = path.join(process.cwd(), upload);
+  // parsing req form
+  form.parse(req, (err, fields, files) => {
+    // get filename
+    fileName = path.join(upload, files.file.name);
+    // rename file
+    fs.rename(files.file.path, fileName, (err) => {
+      // if error - delete file
+      if (err) {
+        console.log(err);
+        fs.unlink(fileName);
+        fs.rename(files.file.path, fileName);
+      }
+      // save directory
+      let dir = "http://localhost:3000/upload/" + files.file.name;
+
+      documents.findById(fields.id)
+        .then(document => {
+
+          document.state = 0;
+          document.globalStatus = 'waiting';
+          document.versions = document.versions.unshift({
+            file: dir,
+            version: fields.version,
+            date: fields.date,
+            description: fields.description,
+            status: 'waiting',
+          });
+
+          document.versions[0].status = 'waiting';
+          document.routes = document.routes.map(route => {
+              route.status = 'waiting';
+              return route;
+          });
+
+          documents.update(document)
+          .then(() =>
+            res.status(201).json({ message: 'Версия успешно добавлена!' })
+          )
+            .catch(e =>
+              res.status(400).json({
+                error: `При добавление версии произошла ошибка:  + ${e.message}`
+              })
+            );
+
+          console.log(document);
+        })
+        .catch(e =>
+          res.status(400).json({
+            error: `При добавление версии произошла ошибка:  + ${e.message}`
           })
         );
     });
@@ -169,11 +249,13 @@ module.exports.postVote = (req, res) => {
     // new vote is reject
     if (author.status === "reject") {
       doc.globalStatus = "rejected";
+      doc.versions[0].status = 'rejected';
       // todo - send mail
     }
     // new vote is resolve and its last author in routes
     else {
         doc.globalStatus = "resolved";
+        doc.versions[0].status = 'resolved';
         // todo - send mail
     }
     // save changes
