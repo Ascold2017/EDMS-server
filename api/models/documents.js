@@ -50,6 +50,9 @@ const DocumentShema = new Schema({
             description: {
                 type: String,
                 required: true,
+            },
+            rejectReason: {
+                type: String,
             }
         }
     ],
