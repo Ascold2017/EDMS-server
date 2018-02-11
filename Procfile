@@ -1,0 +1,1 @@
+web1: node ./bin/www

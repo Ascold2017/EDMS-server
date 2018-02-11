@@ -1,15 +1,30 @@
 const express = require('express');
 const router = express.Router();
 
-const users = require('../controllers/users');
+const groups = require('../controllers/groups');
 const documents = require('../controllers/documents');
+const mailer = require('../controllers/mailer');
 
-router.get('/getPreviews/:token', documents.getPreviewsByToken);
+router.get('/getPreviews', documents.getPreviewsByToken);
 router.get('/getDocument/:id', documents.getDocumentById);
+router.get('/getMyDocument/:id', documents.getMyDocumentById);
+router.get('/getDocPresets', documents.getPresets);
+router.get('/getOurDocuments', documents.getOurPreviews);
+router.get('/getArchiveDocuments', documents.getArchiveDocuments);
+
 router.post('/postVote', documents.postVote);
 router.post('/postNewDocument', documents.addNewDocument);
+router.post('/createPreset', documents.createPreset);
+router.put('/postNewVersion', documents.postNewVersion);
 
-router.get('/getAllUsers', users.getAllUsers);
-router.get('/getCurrentUser', users.getCurrentUser);
+router.get('/getAllUsers', groups.getAllUsers);
+router.get('/getCurrentUser', groups.getCurrentUser);
+router.get('/getAllGroups', groups.getAllGroups);
+router.get('/getGroup/:token', groups.getGroupByToken);
+
+router.post('/createNewGroup', groups.createGroup);
+router.post('/createNewUser', groups.createUser);
+
+router.post('/mail', mailer);
 
 module.exports = router;

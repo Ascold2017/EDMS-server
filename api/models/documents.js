@@ -29,15 +29,34 @@ const DocumentShema = new Schema({
         type: String,
         required: true,
     },
-    status: {
-        type: String,
-        required: true,
-    },
-    document: {
-        type: String,
-        required: true,
-    },
-    token: {
+    versions: [
+        {
+            file: {
+                type: String,
+                required: true,
+            },
+            version: {
+                type: String,
+                required: true,
+            },
+            date: {
+                type: String,
+                required: true,
+            },
+            status: {
+                type: String,
+                required: true,
+            },
+            description: {
+                type: String,
+                required: true,
+            },
+            rejectReason: {
+                type: String,
+            }
+        }
+    ],
+    groupToken: {
         type: String,
         required: true,
     },
@@ -50,6 +69,9 @@ const DocumentShema = new Schema({
                 type: String,
             },
             role: {
+                type: String,
+            },
+            canSee: {
                 type: String,
             },
             status: {

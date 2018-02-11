@@ -1,57 +1,66 @@
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-const compression = require('compression');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-require('./api/models/db');
+var express = require("express");
+var path = require("path");
+var logger = require("morgan");
+var cookieParser = require("cookie-parser");
+var bodyParser = require("body-parser");
+const compression = require("compression");
+const mongoose = require("mongoose");
+const session = require("express-session");
+const MongoStore = require("connect-mongo")(session);
+require("./api/models/db");
 
-const authorization = require('./routes/index');
+const authorization = require("./routes/index");
 
-var api = require('./api/routes/index');
+var api = require("./api/routes/index");
 
 var app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 
-app.use(compression({
-  // Сжимаем HTTP ответы, тело которых длиннее одного байта
-  threshold: 1,
-  // Сжимаем HTTP ответы независимо от их mime-типа
-  filter: function() { return true; }
-}));
+app.use(
+  compression({
+    // Сжимаем HTTP ответы, тело которых длиннее одного байта
+    threshold: 1,
+    // Сжимаем HTTP ответы независимо от их mime-типа
+    filter: function() {
+      return true;
+    }
+  })
+);
 
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Allow crossdomain requests
-app.all('*', function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
+app.all("*", function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
   next();
 });
 
-app.use(session({
-  secret: 'ascold',
-  cookie: {
-    path: '/',
-    httpOnly: true,
-    maxAge: null,
-  },
-  saveUninitialized: false,
-  resave: false,
-  store: new MongoStore({mongooseConnection: mongoose.connection})
-}));
+app.use(
+  session({
+    secret: "ascold",
+    cookie: {
+      path: "/",
+      httpOnly: true,
+      maxAge: null
+    },
+    saveUninitialized: false,
+    resave: false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
+  })
+);
 
 const isAuth = (req, res, next) => {
   // если в сессии текущего пользователя есть пометка о том, что он является
@@ -61,20 +70,21 @@ const isAuth = (req, res, next) => {
     return next();
   }
   //если нет, то перебросить пользователя на главную страницу сайта
-  res.redirect('/');
+  res.redirect("/");
 };
 
-app.use('/', authorization);
+app.use("/", authorization);
 
-app.use('/edms', isAuth, (req, res) => {
-  res.sendFile(path.resolve(__dirname, './public', 'edms.html'));
-  // res.redirect('http://localhost:8080/edms');
+app.use("/edms", isAuth, (req, res) => {
+  res.sendFile(path.resolve(__dirname, "./public", "edms.html"));
 });
 
-app.use('/api', api);
+app.use("/api", api);
+
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  var err = new Error("Not Found");
   err.status = 404;
   next(err);
 });
@@ -83,11 +93,11 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render('pages/404');
+  res.render("pages/404");
 });
 
 module.exports = app;
