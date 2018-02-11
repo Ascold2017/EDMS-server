@@ -108,7 +108,7 @@ module.exports.addNewDocument = (req, res) => {
         fs.rename(files.file.path, fileName);
       }
       // save directory
-      let dir = "http://localhost:3000/upload/" + files.file.name; //.substr(fileName.indexOf('//'));
+      let dir = '/upload/' + files.file.name;
       // parsing array from json
       let fieldsRoutes = JSON.parse(fields.routes);
 
@@ -172,7 +172,7 @@ module.exports.postNewVersion = (req, res) => {
         fs.rename(files.file.path, fileName);
       }
       // save directory
-      let dir = "http://localhost:3000/upload/" + files.file.name;
+      let dir = "/upload/" + files.file.name;
 
       documents.findById(fields.id)
         .then(document => {
