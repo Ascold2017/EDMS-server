@@ -1,1 +1,1 @@
-web1: node ./bin/www
+web: node ./bin/www
