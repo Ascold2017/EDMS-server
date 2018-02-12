@@ -6,15 +6,16 @@ const jwt = require('jwt-simple');
 const config = require('../../config');
 
 module.exports.signIn = (req, res) => {
-    console.log(req.body);
+    console.log('reqbody: ', req.body);
     Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}}, (err, group) => {
-        console.log(group);
+        //console.log(group);
             if (err) { res.status(400).json({ error: 'Произошла ошибка! ' + err}); return; }
             if (!group) {
                 res.status(400).json({ error: 'Пользователь не найден!'});
                 return;
             }
             const user = group.users.find(user => user.login === req.body.userLogin);
+            console.log(user);
             if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
             if (!user || !user.hash) {
                 res.status(400).json({ error: 'Пользователь не найден!'});

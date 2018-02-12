@@ -313,6 +313,20 @@ module.exports.getArchiveDocuments = (req, res) => {
     );
 };
 
+module.exports.closeDocument = (req, res) => {
+  console.log(req.body.id);
+  documents.findByIdAndUpdate(req.body.id, { globalStatus: 'archived' })
+  .then(items => res.status(201).json({ message: 'Документ в архиве!'}))
+    .catch(err =>
+      res
+        .status(400)
+        .json({
+          message:
+            "При отправке в архив произошла ошибка: " + err.message
+        })
+    );
+};
+
 // presets of routes
 const documentPresets = mongoose.model("documentsPresets");
 

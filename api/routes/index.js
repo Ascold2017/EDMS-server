@@ -10,7 +10,6 @@ const config = require('../../config');
 
 const isAuth = (req, res, next) => {
     // если в сессии текущего пользователя есть пометка о том, что он является
-    console.log(req.headers);
     if (req.headers['token'] === 'null') {
         console.log('no token');
         res.sendStatus(401);
@@ -34,6 +33,7 @@ router.post('/postVote', isAuth, documents.postVote);
 router.post('/postNewDocument', isAuth, documents.addNewDocument);
 router.post('/createPreset', isAuth, documents.createPreset);
 router.put('/postNewVersion', isAuth, documents.postNewVersion);
+router.post('/closeDocument', isAuth, documents.closeDocument);
 
 router.get('/getAllUsers', isAuth, groups.getAllUsers);
 router.get('/getCurrentUser', isAuth, groups.getCurrentUser);

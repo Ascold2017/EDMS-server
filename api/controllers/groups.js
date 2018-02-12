@@ -6,7 +6,6 @@ const config = require('../../config');
 module.exports.getAllUsers = (req, res) => {
 
   let token = jwt.decode(req.headers['token'], config.token.secretKey);
-
   Groups.findOne({ users: { $elemMatch: { _id: token.userId }}})
     .select('users')
     .exec((err, usersObj) => {
@@ -35,7 +34,7 @@ module.exports.getAllUsers = (req, res) => {
 module.exports.getCurrentUser = (req, res) => {
 
   let token = jwt.decode(req.headers['token'], config.token.secretKey);
-
+  console.log(token.userId);
   Groups.findOne({ users: { $elemMatch: { _id: token.userId }}}, (err, doc) => {
     if (err) res.status(400).json({ error: 'Произошла ошибка: ' + err});
     if (!doc) {
