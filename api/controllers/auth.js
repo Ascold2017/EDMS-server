@@ -1,9 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Groups = mongoose.model('groups');
-const cryptoPass = require('../lib/cryptoPass');
+const cryptoPass = require('../../lib/cryptoPass');
+const jwt = require('jwt-simple');
+const config = require('../../config');
 
 module.exports.signIn = (req, res) => {
+    console.log(req.body);
     Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}}, (err, group) => {
         console.log(group);
             if (err) { res.status(400).json({ error: 'Произошла ошибка! ' + err}); return; }
@@ -18,12 +21,14 @@ module.exports.signIn = (req, res) => {
                 return;
             }
             if (cryptoPass.validPassword(user.hash, user.salt, req.body.userPassword)) {
-                // create cookies
-                req.session.isAuth = true;
-                req.session.userId = user._id;
-                req.session.userGroup = group.groupInvite;
+                // create token
+                let token = jwt.encode({
+                    isAuth: true,
+                    userId: user._id,
+                    userGroup: group.groupInvite
+                }, config.token.secretKey);
                 // and send response
-                res.status(200).json({ message: 'Вы успешно авторизовались!' });
+                res.status(200).json({ message: 'Вы успешно авторизовались!', token });
             } else {
                 res.status(400).json({ error: 'Неверный пароль!'});
             }
@@ -64,6 +69,5 @@ module.exports.registration = (req, res) => {
 }
 
 module.exports.logout = (req, res) => {
-    req.session.destroy();
     res.send('/');
 };

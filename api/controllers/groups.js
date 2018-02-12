@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
 const Groups = mongoose.model("groups");
+const jwt = require('jwt-simple');
+const config = require('../../config');
 
 module.exports.getAllUsers = (req, res) => {
-  Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}})
+
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+
+  Groups.findOne({ users: { $elemMatch: { _id: token.userId }}})
     .select('users')
     .exec((err, usersObj) => {
       
@@ -28,14 +33,16 @@ module.exports.getAllUsers = (req, res) => {
 };
 
 module.exports.getCurrentUser = (req, res) => {
-  console.log("userId", req.session.userId);
-  Groups.findOne({ users: { $elemMatch: { _id: req.session.userId }}}, (err, doc) => {
+
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+
+  Groups.findOne({ users: { $elemMatch: { _id: token.userId }}}, (err, doc) => {
     if (err) res.status(400).json({ error: 'Произошла ошибка: ' + err});
     if (!doc) {
       res.status(400).json({ error: 'Произошла ошибка - пользователь не найден' });
       return;
     }
-    const user = doc.users.find(user => user._id == req.session.userId);
+    const user = doc.users.find(user => user._id == token.userId);
     const showUser = {
       _id: user._id,
       role: user.role,
