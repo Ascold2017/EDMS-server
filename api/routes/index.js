@@ -4,27 +4,49 @@ const router = express.Router();
 const groups = require('../controllers/groups');
 const documents = require('../controllers/documents');
 const mailer = require('../controllers/mailer');
+const index = require('../controllers/auth');
+const jwt = require('jwt-simple');
+const config = require('../../config');
 
-router.get('/getPreviews', documents.getPreviewsByToken);
-router.get('/getDocument/:id', documents.getDocumentById);
-router.get('/getMyDocument/:id', documents.getMyDocumentById);
-router.get('/getDocPresets', documents.getPresets);
-router.get('/getOurDocuments', documents.getOurPreviews);
-router.get('/getArchiveDocuments', documents.getArchiveDocuments);
+const isAuth = (req, res, next) => {
+    // если в сессии текущего пользователя есть пометка о том, что он является
+    if (req.headers['token'] === 'null') {
+        console.log('no token');
+        res.sendStatus(401);
+    }
+    else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
+      //то всё хорошо
+      return next();
+    }
+    //если нет, то перебросить пользователя на главную страницу сайта
+    // res.redirect("/");
+  };
 
-router.post('/postVote', documents.postVote);
-router.post('/postNewDocument', documents.addNewDocument);
-router.post('/createPreset', documents.createPreset);
-router.put('/postNewVersion', documents.postNewVersion);
+router.get('/getPreviews', isAuth, documents.getPreviewsByToken);
+router.get('/getDocument/:id', isAuth, documents.getDocumentById);
+router.get('/getMyDocument/:id', isAuth, documents.getMyDocumentById);
+router.get('/getDocPresets', isAuth, documents.getPresets);
+router.get('/getOurDocuments', isAuth, documents.getOurPreviews);
+router.get('/getArchiveDocuments', isAuth, documents.getArchiveDocuments);
 
-router.get('/getAllUsers', groups.getAllUsers);
-router.get('/getCurrentUser', groups.getCurrentUser);
-router.get('/getAllGroups', groups.getAllGroups);
-router.get('/getGroup/:token', groups.getGroupByToken);
+router.post('/postVote', isAuth, documents.postVote);
+router.post('/postNewDocument', isAuth, documents.addNewDocument);
+router.post('/createPreset', isAuth, documents.createPreset);
+router.put('/postNewVersion', isAuth, documents.postNewVersion);
+router.post('/closeDocument', isAuth, documents.closeDocument);
 
-router.post('/createNewGroup', groups.createGroup);
-router.post('/createNewUser', groups.createUser);
+router.get('/getAllUsers', isAuth, groups.getAllUsers);
+router.get('/getCurrentUser', isAuth, groups.getCurrentUser);
+router.get('/getAllGroups', isAuth, groups.getAllGroups);
+router.get('/getGroup/:token', isAuth, groups.getGroupByToken);
 
-router.post('/mail', mailer);
+router.post('/createNewGroup', isAuth, groups.createGroup);
+router.post('/createNewUser', isAuth, groups.createUser);
+
+router.post('/mail', isAuth, mailer);
+
+router.post('/signIn', index.signIn);
+router.post('/registration', index.registration);
+router.post('/logout', index.logout);
 
 module.exports = router;

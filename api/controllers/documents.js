@@ -3,14 +3,18 @@ const formidable = require("formidable");
 const fs = require("fs");
 const path = require("path");
 const documents = mongoose.model("documents");
+const jwt = require('jwt-simple');
+const config = require('../../config');
+
 
 // find documents, which have waiting status for user, which exist in routes and he can see this document
 module.exports.getPreviewsByToken = (req, res) => {
-  console.log(req.session.userId);
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+  console.log(token);
   documents
     .find(
-      { groupToken: req.session.userGroup, // only in current users group
-        routes: { $elemMatch: { _id: req.session.userId, canSee: 'yes', status: 'waiting' } } },
+      { groupToken: token.userGroup, // only in current users group
+        routes: { $elemMatch: { _id: token.userId, canSee: 'yes', status: 'waiting' } } },
       { versions: 0 } // reduce document files
     )
     .then(items => res.status(201).json(items))
@@ -18,14 +22,16 @@ module.exports.getPreviewsByToken = (req, res) => {
       console.error(e);
       res.status(404).json({});
     });
+    
 };
 
 // find user publications
 module.exports.getOurPreviews = (req, res) => {
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
   documents
-    .find({ author_id: req.session.userId }, { versions: 0 })
+    .find({ author_id: token.userId }, { versions: 0 })
     .then(items => {
-      console.log(req.session.userId);
+      console.log(token.userId);
       res.status(201).json(items);
     })
     .catch(e => {
@@ -36,13 +42,16 @@ module.exports.getOurPreviews = (req, res) => {
 
 // get document, which can see user
 module.exports.getDocumentById = (req, res) => {
+
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+
   documents
     .findOne({
         _id: req.params.id,
-        groupToken: req.session.userGroup,
+        groupToken: token.userGroup,
         routes: {
             $elemMatch: {
-                _id: req.session.userId,
+                _id: token.userId,
                 canSee: 'yes'
             }
         }
@@ -63,11 +72,14 @@ module.exports.getDocumentById = (req, res) => {
 
 // get document, whic publicate user
 module.exports.getMyDocumentById = (req, res) => {
+
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+
     documents
       .findOne({
           _id: req.params.id,
-          groupToken: req.session.userGroup,
-          "author_id": req.session.userId,
+          groupToken: token.userGroup,
+          "author_id": token.userId,
       })
       .then(item => {
         if (!item) {
@@ -277,12 +289,15 @@ module.exports.postVote = (req, res) => {
 };
 
 module.exports.getArchiveDocuments = (req, res) => {
+
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+
   documents
     .find({
-      groupToken: req.session.userGroup, // only in current users group
+      groupToken: token.userGroup, // only in current users group
       $or: [
-        { routes: { $elemMatch: { _id: req.session.userId } } },
-        { author_id: req.session.userId },
+        { routes: { $elemMatch: { _id: token.userId } } },
+        { author_id: token.userId },
       ],
       globalStatus: ['resolved', 'archived'],
       },
@@ -294,6 +309,20 @@ module.exports.getArchiveDocuments = (req, res) => {
         .json({
           message:
             "При поиске ахивных документов произошла ошибка" + err.message
+        })
+    );
+};
+
+module.exports.closeDocument = (req, res) => {
+  console.log(req.body.id);
+  documents.findByIdAndUpdate(req.body.id, { globalStatus: 'archived' })
+  .then(items => res.status(201).json({ message: 'Документ в архиве!'}))
+    .catch(err =>
+      res
+        .status(400)
+        .json({
+          message:
+            "При отправке в архив произошла ошибка: " + err.message
         })
     );
 };

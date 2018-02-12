@@ -17,5 +17,8 @@
           "pass": "25071996"
         }
       }
+    },
+    "token": {
+      "secretKey": "Ascold"
     }
 }

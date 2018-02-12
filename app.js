@@ -5,19 +5,15 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 const compression = require("compression");
 const mongoose = require("mongoose");
-const session = require("express-session");
-const MongoStore = require("connect-mongo")(session);
+const jwt = require('jwt-simple');
+const config = require('./config');
 require("./api/models/db");
 
-const authorization = require("./routes/index");
 
 var api = require("./api/routes/index");
 
 var app = express();
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "pug");
 
 app.use(logger("dev"));
 
@@ -43,44 +39,16 @@ app.all("*", function(req, res, next) {
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Origin, X-Requested-With, Content-Type, Accept, token"
   );
   next();
 });
 
-app.use(
-  session({
-    secret: "ascold",
-    cookie: {
-      path: "/",
-      httpOnly: true,
-      maxAge: null
-    },
-    saveUninitialized: false,
-    resave: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
-  })
-);
-
-const isAuth = (req, res, next) => {
-  // если в сессии текущего пользователя есть пометка о том, что он является
-  // администратором
-  if (req.session.isAuth) {
-    //то всё хорошо
-    return next();
-  }
-  //если нет, то перебросить пользователя на главную страницу сайта
-  res.redirect("/");
-};
-
-app.use("/", authorization);
-
-app.use("/edms", isAuth, (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./public", "edms.html"));
-});
-
 app.use("/api", api);
 
+app.use("/", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "./public", "edms.html"));
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -89,15 +57,6 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render("pages/404");
-});
 
 module.exports = app;
