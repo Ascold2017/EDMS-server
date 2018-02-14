@@ -46,7 +46,7 @@ router.post('/createNewUser', isAuth, groups.createUser);
 router.post('/mail', isAuth, mailer);
 
 router.post('/signIn', index.signIn);
-router.post('/registration', index.registration);
+router.post('/signUp', index.registration);
 router.post('/logout', index.logout);
 
 module.exports = router;
