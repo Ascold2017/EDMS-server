@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Allow crossdomain requests
 app.all("*", function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
@@ -45,6 +45,10 @@ app.all("*", function(req, res, next) {
 });
 
 app.use("/api", api);
+
+app.use("/upload/:file", (req, res) => {
+  res.jsonp(path.resolve(__dirname, "./public/upload", req.params.file));
+});
 
 app.use("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./public", "edms.html"));
