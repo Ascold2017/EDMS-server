@@ -47,7 +47,7 @@ app.all("*", function(req, res, next) {
 app.use("/api", api);
 
 app.use("/upload/:file", (req, res) => {
-  res.jsonp(path.resolve(__dirname, "./public/upload", req.params.file));
+  res.sendFile(path.resolve(__dirname, "./public/upload", req.params.file));
 });
 
 app.use("/", (req, res) => {
