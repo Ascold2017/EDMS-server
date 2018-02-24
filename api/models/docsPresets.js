@@ -3,7 +3,10 @@ const Schema = mongoose.Schema;
 const DocumentPresetShema = new Schema({
     title: {
         type: String,
-        required: [true, 'Укажите тип документа']
+        required: [true, 'Укажите название пресета']
+    },
+    group: {
+        type: String,
     },
     routes: [
         {

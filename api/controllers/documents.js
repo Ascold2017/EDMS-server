@@ -331,8 +331,9 @@ module.exports.closeDocument = (req, res) => {
 const documentPresets = mongoose.model("documentsPresets");
 
 module.exports.getPresets = (req, res) => {
+  let token = jwt.decode(req.headers['token'], config.token.secretKey);
   documentPresets
-    .find({})
+    .find({ group: token.userGroup })
     .then(presets => {
       console.log(presets);
       res.status(201).json(presets);

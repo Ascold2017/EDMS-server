@@ -9,6 +9,9 @@ const DocumentShema = new Schema({
         type: String,
         required: true,
     },
+    finalDate: {
+        type: String,
+    },
     author: {
         type: String,
         required: true,
@@ -78,6 +81,12 @@ const DocumentShema = new Schema({
                 type: String,
             },
             comment: {
+                type: String,
+            },
+            dateIncoming: {
+                type: String,
+            },
+            dateSigning: {
                 type: String,
             }
         }

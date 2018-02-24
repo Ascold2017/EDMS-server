@@ -12,20 +12,31 @@ const GroupsShema = new Schema({
     },
     users: [
         {
+            signedDocuments: {
+                type: Number,
+                default: 0,
+            },
+            averageTimeToSign: {
+                type: Number,
+                default: 0,
+            },
             author: {
-                type: String
+                type: String,
             },
             role: {
-                type: String
+                type: String,
+                required: true,
             },
             token: {
-                type: String
+                type: String,
+                required: true,
             },
             email: {
-                type: String
+                type: String,
             },
             login: {
                 type: String,
+                required: true,
             },
             hash: String,
             salt: String
