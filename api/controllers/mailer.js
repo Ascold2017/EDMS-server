@@ -10,7 +10,7 @@ module.exports = (req, res) => {
       from: `"Администратор EDMS" <ascold96@gmail.com>`,
       to: req.body.email,
       subject: req.body.subject,
-      text: `Ваш логин EDMS: ${req.body.login} \n Ваш инвайт-код: ${req.body.token}\n Инвайт-код группы: ${ req.body.groupInvite ? req.body.groupInvite : req.body.token} \n Не говорите их никому!`,
+      text: `Ваш логин EDMS: ${req.body.login} \nВаш личный код доступа: ${req.body.token}\nКод доступа группы: ${ req.body.groupInvite ? req.body.groupInvite : req.body.token} \nНе говорите их никому!`,
     };
       //отправляем почту
       transporter.sendMail(mailOptions)
