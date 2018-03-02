@@ -7,6 +7,8 @@ const compression = require("compression");
 const mongoose = require("mongoose");
 const jwt = require('jwt-simple');
 const config = require('./config');
+const multer = require('multer');
+const cors = require('cors');
 require("./api/models/db");
 
 
@@ -28,12 +30,26 @@ app.use(
   })
 );
 
+var storage =   multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, 'public/upload');
+  },
+  filename: function (req, file, callback) {
+    var fileUrl = file.originalname;
+    callback(null, fileUrl);
+  }
+});
+
+app.use(multer({ storage : storage }).single('file'));
+
+
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Allow crossdomain requests
+app.use(cors({ preflightContinue: true }));
 app.all("*", function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -44,9 +60,23 @@ app.all("*", function(req, res, next) {
   next();
 });
 
+const isAuth = (req, res, next) => {
+  // если в сессии текущего пользователя есть пометка о том, что он является
+  if (req.headers['token'] === 'null') {
+      console.log('no token');
+      res.sendStatus(401);
+  }
+  else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
+    //то всё хорошо
+    return next();
+  }
+  //если нет, то перебросить пользователя на главную страницу сайта
+  // res.redirect("/");
+};
+
 app.use("/api", api);
 
-app.use("/upload/:file", (req, res) => {
+app.use("/upload/:file", isAuth, (req, res) => {
   res.sendFile(path.resolve(__dirname, "./public/upload", req.params.file));
 });
 
