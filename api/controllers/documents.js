@@ -10,7 +10,6 @@ const config = require('../../config');
 // find documents, which have waiting status for user, which exist in routes and he can see this document
 module.exports.getPreviewsByToken = (req, res) => {
   let token = jwt.decode(req.headers['token'], config.token.secretKey);
-  console.log(token);
   documents
     .find(
       { groupToken: token.userGroup, // only in current users group
@@ -31,7 +30,6 @@ module.exports.getOurPreviews = (req, res) => {
   documents
     .find({ author_id: token.userId }, { versions: 0 })
     .then(items => {
-      console.log(token.userId);
       res.status(201).json(items);
     })
     .catch(e => {
@@ -97,141 +95,100 @@ module.exports.getMyDocumentById = (req, res) => {
 
 // create new document
 module.exports.addNewDocument = (req, res) => {
-  let form = new formidable.IncomingForm();
-  let upload = "public/upload";
-  let fileName;
-  // create upload dir
-  if (!fs.existsSync(upload)) {
-    fs.mkdirSync(upload);
-  }
-
-  // uploading file
-  form.uploadDir = path.join(process.cwd(), upload);
-  // parsing req form
-  form.parse(req, function(err, fields, files) {
-    // get filename
-    fileName = path.join(upload, files.file.name);
-    // rename file
-    fs.rename(files.file.path, fileName, function(err) {
-      // if error - delete file
-      if (err) {
-        console.log(err);
-        fs.unlink(fileName);
-        fs.rename(files.file.path, fileName);
-      }
+  console.log(req.file, req.body);
       // save directory
-      let dir = '/upload/' + files.file.name;
+      let dir = '/upload/' + req.file.filename;
       // parsing array from json
-      let fieldsRoutes = JSON.parse(fields.routes);
+      let fieldsRoutes = JSON.parse(req.body.routes);
 
       // add document (files and fields) to BD
       let newDocument = new documents({
-        title: fields.title,
-        date: fields.date,
-        author: fields.author,
-        author_id: fields.author_id,
+        title: req.body.title,
+        date: req.body.date,
+        author: req.body.author,
+        author_id: req.body.author_id,
         state: 0,
-        total: fields.total,
+        total: req.body.total,
         globalStatus: 'waiting',
-        groupToken: fields.groupToken,
+        groupToken: req.body.groupToken,
         routes: fieldsRoutes,
         versions: [
           {
             file: dir,
-            version: fields.version,
-            date: fields.date,
+            version: req.body.version,
+            date: req.body.date,
             status: 'waiting',
-            description: fields.description,
+            description: req.body.description,
           }
         ]
       });
+      newDocument.routes[0].dateIncoming = Date.now();
       console.log(newDocument);
       
       newDocument
         .save()
         .then(() =>
-          res.status(201).json({ message: "Запись успешно добавлена" })
+          res.status(201).json({ message: "Документ успешно опубликован" })
         )
         .catch(e =>
           res.status(400).json({
-            message: `При добавление записи произошла ошибка:  + ${e.message}`
+            message: `При добавление документа произошла ошибка:  + ${e.message}`
           })
         );
-        
-    });
-  });
 };
 
 // create new version of document (if rejected)
 module.exports.postNewVersion = (req, res) => {
   
-  let form = new formidable.IncomingForm();
-  let upload = "public/upload";
-  let fileName;
+  // save directory
+  let dir = "/upload/" + req.file.filename;
 
-  // uploading file
-  form.uploadDir = path.join(process.cwd(), upload);
-  // parsing req form
-  form.parse(req, (err, fields, files) => {
-    // get filename
-    fileName = path.join(upload, files.file.name);
-    // rename file
-    fs.rename(files.file.path, fileName, (err) => {
-      // if error - delete file
-      if (err) {
-        console.log(err);
-        fs.unlink(fileName);
-        fs.rename(files.file.path, fileName);
+  documents.findById(req.body.id)
+    .then(document => {
+      if (document.globalStatus !== 'rejected') {
+        res.status(400).json({message: 'Вы не можете создать новую версию! Предыдущая версия находится на рассмотрении!'});
+        return;
       }
-      // save directory
-      let dir = "/upload/" + files.file.name;
+      document.state = 0;
+      document.globalStatus = 'waiting';
+      document.versions = document.versions.unshift({
+        file: dir,
+        version: req.body.version,
+        date: req.body.date,
+        description: req.body.description,
+        status: 'waiting',
+      });
 
-      documents.findById(fields.id)
-        .then(document => {
+      document.versions[0].status = 'waiting';
+      document.routes = document.routes.map(route => {
+          route.status = 'waiting';
+          route.comment = '';
+          return route;
+      });
+      document.routes[0].dateIncoming = Date.now();
 
-          document.state = 0;
-          document.globalStatus = 'waiting';
-          document.versions = document.versions.unshift({
-            file: dir,
-            version: fields.version,
-            date: fields.date,
-            description: fields.description,
-            status: 'waiting',
-          });
-
-          document.versions[0].status = 'waiting';
-          document.routes = document.routes.map(route => {
-              route.status = 'waiting';
-              route.comment = '';
-              return route;
-          });
-
-          documents.findOneAndUpdate({ _id: document._id }, document, {upsert: true})
-          .then(() =>
-            res.status(201).json({ message: 'Версия успешно добавлена!' })
-          )
-            .catch(e =>
-              res.status(400).json({
-                error: `При добавление версии произошла ошибка:  + ${e.message}`
-              })
-            );
-
-          console.log(document);
-        })
+      documents.findOneAndUpdate({ _id: document._id }, document, {upsert: true})
+      .then(() =>
+        res.status(201).json({ message: 'Версия успешно добавлена!' })
+      )
         .catch(e =>
           res.status(400).json({
             error: `При добавление версии произошла ошибка:  + ${e.message}`
           })
         );
-    });
-  });
+
+      console.log(document);
+    })
+    .catch(e =>
+      res.status(400).json({
+        error: `При добавление версии произошла ошибка:  + ${e.message}`
+      })
+    );
 };
 
 module.exports.postVote = (req, res) => {
-  console.log(req.body.id);
-
-  documents.findById(req.body.id).then(doc => {
-    console.log(doc);
+  documents.findById(req.body.id)
+  .then(doc => {
     // find author of vote in routes and his route index in routes
     let currentIndex = 0;
     let author = doc.routes.find((route, index) => {
@@ -241,31 +198,33 @@ module.exports.postVote = (req, res) => {
     // fitering false vote
     if (!author || doc.routes.find(route => route.author === author)) {
       // if author not exist
-      res.status(400).json({ message: "Вы не можете проголосовать!" });
+      res.status(400).json({ message: "Вы не можете подписать документ!" });
       return;
     }
     // filtering double-vote
     if (author.status !== "waiting") {
       // if author not exist
-      res.status(400).json({ message: "Вы уже проголосовали!" });
+      res.status(400).json({ message: "Вы уже подписывали/отказывали в подписи!" });
       return;
     }
     // set changes for author
     author.status = req.body.vote;
     author.comment = req.body.comment;
+    author.dateSigning = Date.now();
     doc.state++;
     // check globalStatus
     let checkAllWaiting = false;
     // if new vote is no reject and all routes not completed
     if (author.status !== "reject" && doc.state < doc.total) {
       // go to next route - allow see doc for next author in routes
-      console.log('currentIndex', currentIndex);
       doc.routes[currentIndex + 1].canSee = 'yes';
+      doc.routes[currentIndex + 1].dateIncoming = Date.now();
     } else
     // new vote is reject
     if (author.status === "reject") {
       doc.globalStatus = "rejected";
       doc.versions[0].status = 'rejected';
+      doc.versions[0].rejectReason = `Отказал в подписи: ${author.author}. Причина отказа: ${author.comment}`;
       // todo - send mail
     }
     // new vote is resolve and its last author in routes
@@ -274,11 +233,12 @@ module.exports.postVote = (req, res) => {
         doc.versions[0].status = 'resolved';
         // todo - send mail
     }
+    console.log(doc);
     // save changes
     doc
       .save()
       .then(() => {
-        res.status(201).json({ message: "Голос зачтен!" });
+        res.status(201).json({ message: author.status === 'resolve' ? "Вы подписали документ" : "Вы отказали в подписи" });
       })
       .catch(err =>
         res.status(400).json({
