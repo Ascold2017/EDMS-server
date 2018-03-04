@@ -57,14 +57,14 @@ module.exports.getCurrentUser = (req, res) => {
 
 module.exports.getAllGroups = (req, res) => {
   Groups
-    .find()
+    .find({}, { 'users.hash': 0, 'users.salt': 0 })
     .then(groups => res.status(201).json(groups))
     .catch(e => console.error(e));
 };
 
 module.exports.getGroupByToken = (req, res) => {
   Groups
-    .find({ groupInvite: req.params.token })
+    .find({ groupInvite: req.params.token },{ 'users.hash': 0, 'users.salt': 0 } )
     .then(groups => res.status(201).json(groups))
     .catch(e => console.error(e));
 }

@@ -49,6 +49,7 @@ module.exports.registration = (req, res) => {
             group.users.map(user => {
                 if (user.login === req.body.userLogin && user.token === req.body.userInvite ) {
                     const crypto = cryptoPass.setPassword(req.body.userPassword);
+                    user.dateRegistration = Date.now();
                     user.author = req.body.userAuthor;
                     user.email = req.body.userEmail;
                     user.salt = crypto.salt
