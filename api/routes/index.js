@@ -5,6 +5,7 @@ const groups = require('../controllers/groups');
 const documents = require('../controllers/documents');
 const mailer = require('../controllers/mailer');
 const index = require('../controllers/auth');
+const stat = require('../controllers/stat');
 const jwt = require('jwt-simple');
 const config = require('../../config');
 
@@ -28,6 +29,7 @@ router.get('/getMyDocument/:id', isAuth, documents.getMyDocumentById);
 router.get('/getDocPresets', isAuth, documents.getPresets);
 router.get('/getOurDocuments', isAuth, documents.getOurPreviews);
 router.get('/getArchiveDocuments', isAuth, documents.getArchiveDocuments);
+router.get('/getArchiveDocument/:id', isAuth, documents.getArchiveDocument);
 
 router.post('/postVote', isAuth, documents.postVote);
 router.post('/postNewDocument', isAuth, documents.addNewDocument);
@@ -48,5 +50,7 @@ router.post('/mail', isAuth, mailer);
 router.post('/signIn', index.signIn);
 router.post('/signUp', index.registration);
 router.post('/logout', index.logout);
+
+router.get('/getDocsStat', stat.getDocsStat);
 
 module.exports = router;

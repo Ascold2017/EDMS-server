@@ -9,7 +9,7 @@ const DocumentShema = new Schema({
         type: String,
         required: true,
     },
-    finalDate: {
+    resolveDate: {
         type: String,
     },
     author: {

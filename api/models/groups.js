@@ -12,13 +12,8 @@ const GroupsShema = new Schema({
     },
     users: [
         {
-            signedDocuments: {
-                type: Number,
-                default: 0,
-            },
-            averageTimeToSign: {
-                type: Number,
-                default: 0,
+            dateRegistration: {
+                type: String,
             },
             author: {
                 type: String,
@@ -33,9 +28,11 @@ const GroupsShema = new Schema({
             },
             email: {
                 type: String,
+                unique: true,
             },
             login: {
                 type: String,
+                unique: true,
                 required: true,
             },
             hash: String,
