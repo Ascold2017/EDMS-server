@@ -28,9 +28,11 @@ const GroupsShema = new Schema({
             },
             email: {
                 type: String,
+                unique: true,
             },
             login: {
                 type: String,
+                unique: true,
                 required: true,
             },
             hash: String,

@@ -7,32 +7,33 @@ const config = require('../../config');
 
 module.exports.signIn = (req, res) => {
     console.log('reqbody: ', req.body);
-    Groups.findOne({ users: { $elemMatch: { login: req.body.userLogin }}}, (err, group) => {
-            //console.log(group);
-            if (err) { res.status(400).json({ error: 'Произошла ошибка! ' + err}); return; }
-            if (!group) {
-                res.status(400).json({ error: 'Пользователь не найден!'});
-                return;
-            }
-            const user = group.users.find(user => user.login === req.body.userLogin);
-            //console.log(user);
-            if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
-            if (!user || !user.hash) {
-                res.status(400).json({ error: 'Пользователь не найден!'});
-                return;
-            }
-            if (cryptoPass.validPassword(user.hash, user.salt, req.body.userPassword)) {
-                // create token
-                let token = jwt.encode({
-                    isAuth: true,
-                    userId: user._id,
-                    userGroup: group.groupInvite
-                }, config.token.secretKey);
-                // and send response
-                res.status(200).json({ message: 'Вы успешно авторизовались!', token });
-            } else {
-                res.status(400).json({ error: 'Неверный пароль!'});
-            }
+    Groups.findOne({ $or: [ { 'users.login': req.body.userLogin }, { 'users.email': req.body.userLogin } ] },
+    (err, group) => {
+        //console.log(group);
+        if (err) { res.status(400).json({ error: 'Произошла ошибка! ' + err}); return; }
+        if (!group) {
+            res.status(400).json({ error: 'Пользователь не найден!'});
+            return;
+        }
+        const user = group.users.find(user => user.login === req.body.userLogin || user.email === req.body.userLogin);
+        //console.log(user);
+        if (err) res.status(400).json({ error: 'Произошла ошибка! ' + err});
+        if (!user || !user.hash) {
+            res.status(400).json({ error: 'Пользователь не найден!'});
+            return;
+        }
+        if (cryptoPass.validPassword(user.hash, user.salt, req.body.userPassword)) {
+            // create token
+            let token = jwt.encode({
+                isAuth: true,
+                userId: user._id,
+                userGroup: group.groupInvite
+            }, config.token.secretKey);
+            // and send response
+            res.status(200).json({ message: 'Вы успешно авторизовались!', token });
+        } else {
+            res.status(400).json({ error: 'Неверный пароль!'});
+        }
     })
 }
 
