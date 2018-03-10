@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const documents = mongoose.model("documents");
 const jwt = require('jwt-simple');
 const config = require('../../config');
-
+const crypto = require('crypto');
 
 // find documents, which have waiting status for user, which exist in routes and he can see this document
 module.exports.getPreviewsByToken = (req, res) => {
@@ -204,11 +204,18 @@ module.exports.postVote = (req, res) => {
       res.status(400).json({ message: "Вы уже подписывали/отказывали в подписи!" });
       return;
     }
-    // set changes for author
-    author.status = req.body.vote;
-    author.comment = req.body.comment;
-    author.dateSigning = Date.now();
-    doc.state++;
+    // todo - verify sign
+    const verify = true;
+    if (verify) {
+      // set changes for author
+      author.status = req.body.vote;
+      author.comment = req.body.comment;
+      author.dateSigning = Date.now();
+      doc.state++;
+    } else {
+      res.status(403).json({message: 'Ваш сертификат недействителен!'});
+      return;
+    }
     // check globalStatus
     let checkAllWaiting = false;
     // if new vote is no reject and all routes not completed

@@ -6,7 +6,6 @@ const jwt = require('jwt-simple');
 const config = require('../../config');
 
 module.exports.signIn = (req, res) => {
-    console.log('reqbody: ', req.body);
     Groups.findOne({ $or: [ { 'users.login': req.body.userLogin }, { 'users.email': req.body.userLogin } ] },
     (err, group) => {
         //console.log(group);
@@ -38,7 +37,6 @@ module.exports.signIn = (req, res) => {
 }
 
 module.exports.registration = (req, res) => {
-    console.log(req.body);
     Groups.findOne({ groupInvite: req.body.groupInvite, }, (err, group) => {
         if (err) {
             res.status(400).json({
