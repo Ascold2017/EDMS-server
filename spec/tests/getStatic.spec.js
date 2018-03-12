@@ -8,11 +8,10 @@ chai.use(chaiHttp)
 describe('Test index', () => {
     it('get index', (done) => {
         chai.request(app).get('/').end((err, res) => {
-            if (err) console.log(err)
+            expect(err).toBe(null)
             res.should.have.status(200)
             res.should.have.header('content-type', 'text/html; charset=UTF-8');
             done()
         })
     })
-    
 })

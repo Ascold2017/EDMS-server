@@ -34,7 +34,6 @@ module.exports.getAllUsers = (req, res) => {
 module.exports.getCurrentUser = (req, res) => {
 
   let token = jwt.decode(req.headers['token'], config.token.secretKey);
-  console.log(token.userId);
   Groups.findOne({ users: { $elemMatch: { _id: token.userId }}}, (err, doc) => {
     if (err) res.status(400).json({ error: 'Произошла ошибка: ' + err});
     if (!doc) {
@@ -68,22 +67,36 @@ module.exports.getGroupByToken = (req, res) => {
     .then(groups => res.status(201).json(groups))
     .catch(e => console.error(e));
 }
-
+const mailer = require('./mailer')
+const cryptoPass = require('../../lib/cryptoPass')
 module.exports.createGroup = (req, res) => {
+  const hashSalt = cryptoPass.setPassword(req.body.adminPassword)
   const newGroupBody = {
     name: req.body.name,
     groupInvite: req.body.invite,
     users: [{
-      author: '',
+      author: 'Администратор группы ' + req.body.name,
       role: 'Admin',
       token: req.body.adminInvite,
-      login: req.body.adminLogin }]
+      login: req.body.adminLogin,
+      hash: hashSalt.hash,
+      salt: hashSalt.salt,
+      email: req.body.adminEmail,
+      dateRegistration: Date.now()
+     }]
   };
   const newGroup = new Groups(newGroupBody);
   console.log(newGroup);
   newGroup
     .save()
-    .then(() => res.status(201).json({ message: "Группа успешно создана" }))
+    .then(() => {
+      return mailer({
+        email: req.body.adminEmail,
+        login: req.body.adminLogin,
+        password: req.body.adminPassword,
+        subject: 'Данные авторизации администратора группы '+ req.body.name })
+    })
+    .then(() => res.status(201).json({ message: "Группа успешно создана!\nПриглашение администратору отправлено на <"+ req.body.adminEmail+">\n"}))
     .catch(e => {
       console.log(e.message);
       res.status(400).json({
@@ -97,7 +110,13 @@ module.exports.createUser = (req, res) => {
   Groups
     .findById(req.body.group)
     .then(group => {
-      group.users.push({ token: req.body.invite, role: req.body.role, login: req.body.login });
+      console.log(req.file.filename)
+      group.users.push({
+        token: req.body.invite,
+        role: req.body.role,
+        email: req.body.email
+      });
+      /*
       group
         .save()
         .then(() =>
@@ -110,6 +129,7 @@ module.exports.createUser = (req, res) => {
             }`
           })
         );
+        */
     })
     .catch(e =>
       res.status(400).json({

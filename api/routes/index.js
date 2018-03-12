@@ -45,10 +45,14 @@ router.get('/getGroup/:token', isAuth, groups.getGroupByToken);
 router.post('/createNewGroup', isAuth, groups.createGroup);
 router.post('/createNewUser', isAuth, groups.createUser);
 
-router.post('/mail', isAuth, mailer);
+router.post('/mail', isAuth, (req, res) => {
+  mailer(req.body)
+    .then(response => res.status(200).json(response))
+    .catch(e => res.status(400).json(e))
+});
 
 router.post('/signIn', index.signIn);
-router.post('/signUp', index.registration);
+router.post('/signInAdmin', index.signInAdmin);
 router.post('/logout', index.logout);
 
 router.get('/getDocsStat', stat.getDocsStat);
