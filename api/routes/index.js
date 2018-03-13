@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const groups = require('../controllers/groups');
+const groups = require('../controllers/groups/index')
 const documents = require('../controllers/documents');
 const mailer = require('../controllers/mailer');
 const index = require('../controllers/auth');
