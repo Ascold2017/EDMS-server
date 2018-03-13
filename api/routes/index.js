@@ -10,18 +10,18 @@ const jwt = require('jwt-simple');
 const config = require('../../config');
 
 const isAuth = (req, res, next) => {
-    // если в сессии текущего пользователя есть пометка о том, что он является
-    if (req.headers['token'] === 'null') {
-        console.log('no token');
-        res.sendStatus(401);
-    }
-    else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
-      //то всё хорошо
-      return next();
-    }
-    //если нет, то перебросить пользователя на главную страницу сайта
-    // res.redirect("/");
-  };
+  // если в сессии текущего пользователя есть пометка о том, что он является
+  if (req.headers['token'] === 'null') {
+    console.log('no token');
+    res.sendStatus(401);
+  }
+  else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
+    //то всё хорошо
+    return next();
+  }
+  //если нет, то перебросить пользователя на главную страницу сайта
+  // res.redirect("/");
+};
 
 router.get('/getPreviews', isAuth, documents.getPreviews);
 router.get('/getDocument/:id', isAuth, documents.getDocumentById);
@@ -43,7 +43,10 @@ router.get('/getAllGroups', isAuth, groups.getAllGroups);
 router.get('/getGroup/:token', isAuth, groups.getGroupByToken);
 
 router.post('/createNewGroup', isAuth, groups.createGroup);
+router.post('/createNewAdmin', isAuth, groups.createAdmin);
+router.delete('/removeAdmin/:groupId/:adminId', isAuth, groups.deleteAdmin);
 router.post('/createNewUser', isAuth, groups.createUser);
+router.post('/sendInviteAdmin', isAuth, groups.sendInviteAdmin);
 
 router.post('/mail', isAuth, (req, res) => {
   mailer(req.body)
@@ -56,5 +59,7 @@ router.post('/signInAdmin', index.signInAdmin);
 router.post('/logout', index.logout);
 
 router.get('/getDocsStat', stat.getDocsStat);
+
+router.post('/createNewKeys', index.createKeys);
 
 module.exports = router;

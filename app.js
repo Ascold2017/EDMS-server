@@ -11,7 +11,6 @@ const multer = require('multer');
 const cors = require('cors');
 require("./api/models/db");
 
-
 var api = require("./api/routes/index");
 
 var app = express();

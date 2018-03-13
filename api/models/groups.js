@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
+const uniqueValidator = require('mongoose-unique-validator');
 const GroupsShema = new Schema({
     name: {
         type: String,
@@ -28,12 +29,14 @@ const GroupsShema = new Schema({
             },
             email: {
                 type: String,
-                unique: true,
+                required: true,
             },
             login: {
                 type: String,
-                unique: true,
                 required: true,
+            },
+            publicKey: {
+                type: String
             },
             hash: String,
             salt: String
@@ -41,6 +44,6 @@ const GroupsShema = new Schema({
     ]
 });
 
-
+GroupsShema.plugin(uniqueValidator)
 
 mongoose.model('groups', GroupsShema);

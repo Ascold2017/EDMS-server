@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const express = require('express');
 const config = require('../../config.json');
 
 module.exports = ({ email, login, password, subject }) => {
