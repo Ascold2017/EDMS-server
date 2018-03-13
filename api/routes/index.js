@@ -23,18 +23,18 @@ const isAuth = (req, res, next) => {
     // res.redirect("/");
   };
 
-router.get('/getPreviews', isAuth, documents.getPreviewsByToken);
+router.get('/getPreviews', isAuth, documents.getPreviews);
 router.get('/getDocument/:id', isAuth, documents.getDocumentById);
 router.get('/getMyDocument/:id', isAuth, documents.getMyDocumentById);
 router.get('/getDocPresets', isAuth, documents.getPresets);
 router.get('/getOurDocuments', isAuth, documents.getOurPreviews);
-router.get('/getArchiveDocuments', isAuth, documents.getArchiveDocuments);
-router.get('/getArchiveDocument/:id', isAuth, documents.getArchiveDocument);
+router.get('/getArchiveDocuments', isAuth, documents.getOurPreviews);
+router.get('/getArchiveDocument/:id', isAuth, documents.getArchieveDocument);
 
-router.post('/postVote', isAuth, documents.postVote);
+router.post('/postVote', isAuth, documents.postSign);
 router.post('/postNewDocument', isAuth, documents.addNewDocument);
 router.post('/createPreset', isAuth, documents.createPreset);
-router.put('/postNewVersion', isAuth, documents.postNewVersion);
+router.put('/postNewVersion', isAuth, documents.addNewVersion);
 router.post('/closeDocument', isAuth, documents.closeDocument);
 
 router.get('/getAllUsers', isAuth, groups.getAllUsers);
