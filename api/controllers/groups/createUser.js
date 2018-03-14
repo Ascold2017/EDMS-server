@@ -54,7 +54,7 @@ function generateAndSendKeys (keysOptions, userOptions) {
       .then(() => {
         fs.writeFile(`${__dirname}/../../../public/upload/${pubKeyName}`, pubKey, 'utf-8', (err) => {
           if (err) throw err
-          resolve('/upload/' + pubKeyName + '?' + Date.now())
+          resolve('/upload/' + pubKeyName)
         })
       })
       .catch(e => { console.log(e); reject(e) })
