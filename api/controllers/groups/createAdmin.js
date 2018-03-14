@@ -14,7 +14,7 @@ module.exports = (req, res) => {
       groupName = group.name
       group.users.push({
         author: 'Администратор группы ' + groupName,
-        role: 'Admin',
+        role: group.groupInvite === 'superAdminGroup' ? 'superAdmin' : 'Admin',
         login: req.body.adminLogin,
         token: req.body.adminInvite,
         hash: hashSalt.hash,

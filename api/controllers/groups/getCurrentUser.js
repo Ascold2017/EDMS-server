@@ -18,7 +18,6 @@ module.exports = (req, res) => {
         role: user.role,
         login: user.login,
         author: user.author,
-        token: user.token,
         groupInvite: doc.groupInvite,
       };
       console.log(showUser);

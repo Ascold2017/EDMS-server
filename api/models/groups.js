@@ -23,21 +23,14 @@ const GroupsShema = new Schema({
                 type: String,
                 required: true,
             },
-            token: {
-                type: String,
-                required: true,
-            },
             email: {
-                type: String,
-                required: true,
-            },
-            login: {
                 type: String,
                 required: true,
             },
             publicKey: {
                 type: String
             },
+            login: String,
             hash: String,
             salt: String
         }

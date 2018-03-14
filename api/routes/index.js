@@ -60,6 +60,4 @@ router.post('/logout', index.logout);
 
 router.get('/getDocsStat', stat.getDocsStat);
 
-router.post('/createNewKeys', index.createKeys);
-
 module.exports = router;
