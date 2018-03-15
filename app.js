@@ -49,7 +49,7 @@ app.use(express.static(path.join(__dirname, "public/dist")));
 app.use(cors());
 
 app.all("*", function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -64,7 +64,7 @@ const isAuth = (req, res, next) => {
       console.log('no token');
       res.sendStatus(401);
   }
-  else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
+  else if (jwt.decode(req.headers['token'], config.token.secretKey)) {
     //то всё хорошо
     return next();
   }
@@ -72,12 +72,12 @@ const isAuth = (req, res, next) => {
 
 app.use("/api", api);
 
-app.use("/upload/:file", isAuth, (req, res) => {
+app.use("/upload/:file", (req, res) => { // isAuth
   res.sendFile(path.resolve(__dirname, "./public/upload", req.params.file));
 });
 
 app.use("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./public", "edms.html"));
+  res.sendFile(path.resolve(__dirname, "./public/dist", "index.html"));
 });
 
 // catch 404 and forward to error handler

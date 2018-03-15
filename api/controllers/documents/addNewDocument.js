@@ -11,7 +11,7 @@ module.exports = (req, res) => {
   let dir = '/upload/' + req.file.filename;
   // parsing array from json
   let fieldsRoutes = JSON.parse(req.body.routes);
-  console.log(fieldsRoutes)
+
   // create sigFile
   const sigFilePath = `/upload/${cyrToLat(req.file.filename)}.sig`
   fs.writeFileSync(`${__dirname}/../../../public${sigFilePath}`, '', 'utf-8')
