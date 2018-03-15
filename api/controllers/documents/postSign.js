@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 const documents = mongoose.model("documents");
 const jwt = require('jwt-simple');
 const config = require('../../../config');
-const openpgpg = require('openpgp')
+const openpgp = require('openpgp')
+const fs = require('fs')
+const publicPath = __dirname + '/../../../public'
 
 module.exports = (req, res) => {
   documents.findById(req.body.id)
@@ -13,6 +15,7 @@ module.exports = (req, res) => {
         currentIndex = index;
         return route.author === req.body.author.author;
     });
+
     // fitering false vote
     if (!author || doc.routes.find(route => route.author === author)) {
       // if author not exist
@@ -25,41 +28,62 @@ module.exports = (req, res) => {
       res.status(400).json({ message: "Вы уже подписывали/отказывали в подписи!" });
       return;
     }
-    // todo - verify sign
-    const verify = true;
-    if (verify) {
-      // set changes for author
-      author.status = req.body.vote;
-      author.comment = req.body.comment;
-      author.dateSigning = Date.now();
-      doc.state++;
+
+    if (req.body.vote === 'resolve') {
+
+      const fileDocument = fs.readFileSync(publicPath + doc.versions[0].file)
+      const publicKeyFile = fs.readFileSync(publicPath + author.publicKey, 'utf-8')
+      let sigFile = fs.readFileSync(publicPath + doc.versions[0].sigFile, 'utf-8')
+
+      const verifyOptions = {
+        message: openpgp.message.fromBinary(fileDocument), // input as Message object
+        signature: openpgp.signature.readArmored(req.body.signature), // parse detached signature
+        publicKeys: openpgp.key.readArmored(publicKeyFile).keys   // for verification
+      };
+
+      openpgp.verify(verifyOptions)
+      .then(verified => {
+        console.log(verified.signatures[0].valid)
+        // if signature is VALID
+        if (verified.signatures[0].valid) {
+
+          // set changes for author
+          author.status = req.body.vote;
+          author.comment = req.body.comment;
+          author.dateSigning = Date.now();
+          doc.state++;
+
+          // write sign to sig file
+          sigFile += req.body.signature + '--signature--\n'
+          fs.writeFileSync(publicPath + doc.versions[0].sigFile, sigFile, 'utf-8')
+
+          // if sign and this author not a last in routes
+          if (doc.state < doc.total) {
+            // go to next route - allow see doc for next author in routes
+            doc.routes[currentIndex + 1].canSee = 'yes';
+            doc.routes[currentIndex + 1].dateIncoming = Date.now();
+          } else {
+            // if author is last in routes - set globalStatus
+            doc.globalStatus = "resolved";
+            doc.versions[0].status = 'resolved';
+            doc.resolveDate = Date.now();
+            // todo - send mail
+          }
+
+        } else {
+          // if signature INVALID
+          res.status(403).json({message: 'Ваш сертификат недействителен!'});
+          return;
+        }
+      })
+      .catch(e => console.log(e))
+      
     } else {
-      res.status(403).json({message: 'Ваш сертификат недействителен!'});
-      return;
-    }
-    // check globalStatus
-    let checkAllWaiting = false;
-    // if new vote is no reject and all routes not completed
-    if (author.status !== "reject" && doc.state < doc.total) {
-      // go to next route - allow see doc for next author in routes
-      doc.routes[currentIndex + 1].canSee = 'yes';
-      doc.routes[currentIndex + 1].dateIncoming = Date.now();
-    } else
-    // new vote is reject
-    if (author.status === "reject") {
       doc.globalStatus = "rejected";
       doc.versions[0].status = 'rejected';
       doc.versions[0].rejectReason = `Отказал в подписи: ${author.author}. Причина отказа: ${author.comment}`;
-      // todo - send mail
     }
-    // new vote is resolve and its last author in routes
-    else {
-        doc.globalStatus = "resolved";
-        doc.versions[0].status = 'resolved';
-        doc.resolveDate = Date.now();
-        // todo - send mail
-    }
-    console.log(doc);
+
     // save changes
     doc
       .save()
@@ -71,5 +95,5 @@ module.exports = (req, res) => {
           message: `При обновлении записи произошла ошибка: ${err.message}`
         })
       );
-  });
+  }).catch(e => console.log(e))
 };

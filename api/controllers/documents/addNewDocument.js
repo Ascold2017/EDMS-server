@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const documents = mongoose.model("documents");
 const jwt = require('jwt-simple');
 const config = require('../../../config');
-
+const fs = require('fs')
+const cyrToLat = require('../../../lib/cyrToLat')
 // create new document
 module.exports = (req, res) => {
   console.log(req.file, req.body);
@@ -10,7 +11,10 @@ module.exports = (req, res) => {
   let dir = '/upload/' + req.file.filename;
   // parsing array from json
   let fieldsRoutes = JSON.parse(req.body.routes);
-
+  console.log(fieldsRoutes)
+  // create sigFile
+  const sigFilePath = `/upload/${cyrToLat(req.file.filename)}.sig`
+  fs.writeFileSync(`${__dirname}/../../../public${sigFilePath}`, '', 'utf-8')
   // add document (files and fields) to BD
   let newDocument = new documents({
     title: req.body.title,
@@ -29,6 +33,7 @@ module.exports = (req, res) => {
         date: req.body.date,
         status: 'waiting',
         description: req.body.description,
+        sigFile: sigFilePath
       }
     ]
   });

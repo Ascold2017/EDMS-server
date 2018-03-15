@@ -15,7 +15,6 @@ var api = require("./api/routes/index");
 
 var app = express();
 
-
 app.use(logger("dev"));
 
 app.use(
@@ -41,7 +40,6 @@ var storage =   multer.diskStorage({
 
 app.use(multer({ storage : storage }).single('file'));
 
-
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
@@ -60,10 +58,8 @@ app.all("*", function(req, res, next) {
   next();
 });
 
-
 const isAuth = (req, res, next) => {
-  // если в сессии текущего пользователя есть пометка о том, что он является
-  console.log(req.headers)
+
   if (!req.headers['token']) {
       console.log('no token');
       res.sendStatus(401);
@@ -76,8 +72,7 @@ const isAuth = (req, res, next) => {
 
 app.use("/api", api);
 
-app.use("/upload/:file", isAuth, (req, res) => { //
-  console.log(req.params.file)
+app.use("/upload/:file", isAuth, (req, res) => {
   res.sendFile(path.resolve(__dirname, "./public/upload", req.params.file));
 });
 
@@ -91,7 +86,5 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
-
 
 module.exports = app;
