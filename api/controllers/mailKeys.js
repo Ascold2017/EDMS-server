@@ -1,10 +1,9 @@
 const nodemailer = require('nodemailer');
 const config = require('../../config.json');
 
-module.exports = (userName, userLogin, publicKey, privateKey, passphrase, email) => {
+module.exports = (adress, userName, userLogin, publicKey, privateKey, passphrase, email) => {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport(config.mail.smtp);
-    const adress = 'http://localhost:3000'
     const mailOptions = {
       from: `"Администратор EDMS" <ascold96@gmail.com>`,
       to: email,

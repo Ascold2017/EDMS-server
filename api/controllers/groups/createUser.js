@@ -28,7 +28,7 @@ function generateAndSendKeys (keysOptions, userOptions) {
   console.log(passphrase)
   const options = {
     userIds: [{
-      name: userOptions.name,
+      name: userName,
       email: userOptions.email
     }],
     numBits: 2048,
@@ -43,6 +43,7 @@ function generateAndSendKeys (keysOptions, userOptions) {
         pubKey = keys.publicKeyArmored
         console.log(passphrase)
         return mailKeys(
+          userOptions.hostname,
           userOptions.name,
           userOptions.login,
           { name: pubKeyName, content: pubKey },
@@ -70,7 +71,7 @@ module.exports = (req, res) => {
       // generate and mail keys
       return generateAndSendKeys(
         { cerTime: req.body.cerTime },
-        { name: req.body.name, email: req.body.email, login: userLogin }
+        { hostname: req.hostname, name: req.body.name, email: req.body.email, login: userLogin }
       ).then(pubKeyPath => {
         // add and save new user
         group.users.push({

@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const config = require('../../config.json');
 
-module.exports = ({ email, login, password, subject }) => {
+module.exports = ({ group, adress, email, login, password, subject }) => {
   //инициализируем модуль для отправки писем и указываем данные из конфига
   return new Promise((resolve, reject) => {
     console.log(email, login, password);
@@ -10,7 +10,12 @@ module.exports = ({ email, login, password, subject }) => {
       from: `"Администратор EDMS" <ascold96@gmail.com>`,
       to: email,
       subject,
-      text: `Ваш логин EDMS: ${login} \nВаш пароль для входа: ${password}\nНе говорите их никому!`,
+      text: `Здравствуйте!\n
+      Администрация EDMS уведомляет вас, что вы получили доступ администратора в группе ${group}\n
+      Для авторизации перейдите по адресу: ${adress}\n
+      Ваш логин EDMS: ${login} \n
+      Ваш пароль для входа: ${password}\n
+      Не говорите их никому!`,
     };
     //отправляем почту
     transporter.sendMail(mailOptions)
