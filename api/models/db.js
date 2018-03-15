@@ -3,7 +3,7 @@ const config = require('../../config');
 
 mongoose.Promise = global.Promise;
 
-mongoose
+  mongoose
     .connect(`mongodb://${config.db.user}:${config.db.password}@ds263137.mlab.com:${config.db.port}/${config.db.name}`)
     .catch(e => {
         console.error(e);

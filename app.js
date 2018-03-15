@@ -11,11 +11,9 @@ const multer = require('multer');
 const cors = require('cors');
 require("./api/models/db");
 
-
 var api = require("./api/routes/index");
 
 var app = express();
-
 
 app.use(logger("dev"));
 
@@ -42,17 +40,17 @@ var storage =   multer.diskStorage({
 
 app.use(multer({ storage : storage }).single('file'));
 
-
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public/dist")));
 
 // Allow crossdomain requests
-app.use(cors({ preflightContinue: true }));
+app.use(cors());
+
 app.all("*", function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, token"
@@ -61,27 +59,25 @@ app.all("*", function(req, res, next) {
 });
 
 const isAuth = (req, res, next) => {
-  // если в сессии текущего пользователя есть пометка о том, что он является
-  if (req.headers['token'] === 'null') {
+
+  if (!req.headers['token']) {
       console.log('no token');
       res.sendStatus(401);
   }
-  else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
+  else if (jwt.decode(req.headers['token'], config.token.secretKey)) {
     //то всё хорошо
     return next();
   }
-  //если нет, то перебросить пользователя на главную страницу сайта
-  // res.redirect("/");
 };
 
 app.use("/api", api);
 
-app.use("/upload/:file", isAuth, (req, res) => {
+app.use("/upload/:file", (req, res) => { // isAuth
   res.sendFile(path.resolve(__dirname, "./public/upload", req.params.file));
 });
 
 app.use("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./public", "edms.html"));
+  res.sendFile(path.resolve(__dirname, "./public/dist", "index.html"));
 });
 
 // catch 404 and forward to error handler
@@ -90,7 +86,5 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
-
 
 module.exports = app;

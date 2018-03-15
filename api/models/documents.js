@@ -56,7 +56,8 @@ const DocumentShema = new Schema({
             },
             rejectReason: {
                 type: String,
-            }
+            },
+            sigFile: String
         }
     ],
     groupToken: {
@@ -87,6 +88,9 @@ const DocumentShema = new Schema({
                 type: String,
             },
             dateSigning: {
+                type: String,
+            },
+            publicKey: {
                 type: String,
             }
         }

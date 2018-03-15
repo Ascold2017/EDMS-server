@@ -1,19 +1,25 @@
 const nodemailer = require('nodemailer');
-const express = require('express');
 const config = require('../../config.json');
 
-module.exports = (req, res) => {
-    //инициализируем модуль для отправки писем и указываем данные из конфига
-    console.log(req.body);
+module.exports = ({ group, adress, email, login, password, subject }) => {
+  //инициализируем модуль для отправки писем и указываем данные из конфига
+  return new Promise((resolve, reject) => {
+    console.log(email, login, password);
     const transporter = nodemailer.createTransport(config.mail.smtp);
     const mailOptions = {
       from: `"Администратор EDMS" <ascold96@gmail.com>`,
-      to: req.body.email,
-      subject: req.body.subject,
-      text: `Ваш логин EDMS: ${req.body.login} \nВаш личный код доступа: ${req.body.token}\nКод доступа группы: ${ req.body.groupInvite ? req.body.groupInvite : req.body.token} \nНе говорите их никому!`,
+      to: email,
+      subject,
+      text: `Здравствуйте!\n
+      Администрация EDMS уведомляет вас, что вы получили доступ администратора в группе ${group}\n
+      Для авторизации перейдите по адресу: ${adress}\n
+      Ваш логин EDMS: ${login} \n
+      Ваш пароль для входа: ${password}\n
+      Не говорите их никому!`,
     };
-      //отправляем почту
-      transporter.sendMail(mailOptions)
-      .then(() => res.status(200).json({result: true}))
-      .catch(e => { console.error('error', e); res.status(400).json({ error: 'Произошла ошибка при отправке!' }); });
-  } 
+    //отправляем почту
+    transporter.sendMail(mailOptions)
+    .then(() => resolve({result: true}))
+    .catch(e => reject({ error: 'Произошла ошибка при отправке!' }));
+  })
+} 
