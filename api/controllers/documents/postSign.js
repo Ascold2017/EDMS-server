@@ -40,10 +40,10 @@ module.exports = (req, res) => {
         signature: openpgp.signature.readArmored(req.body.signature), // parse detached signature
         publicKeys: openpgp.key.readArmored(publicKeyFile).keys   // for verification
       };
-
+      console.log(req.body.signature)
       openpgp.verify(verifyOptions)
       .then(verified => {
-        console.log(verified.signatures[0].valid)
+        console.log(verified)
         // if signature is VALID
         if (verified.signatures[0].valid) {
 
@@ -81,14 +81,14 @@ module.exports = (req, res) => {
     } else {
       doc.globalStatus = "rejected";
       doc.versions[0].status = 'rejected';
-      doc.versions[0].rejectReason = `Отказал в подписи: ${author.author}. Причина отказа: ${author.comment}`;
+      doc.versions[0].rejectReason = `Отказал в подписи: ${author.author}. Причина отказа: ${req.body.comment}`;
     }
 
     // save changes
     doc
       .save()
       .then(() => {
-        res.status(201).json({ message: author.status === 'resolve' ? "Вы подписали документ" : "Вы отказали в подписи" });
+        res.status(201).json({ message: req.body.vote === 'resolve' ? "Вы подписали документ" : "Вы отказали в подписи" });
       })
       .catch(err =>
         res.status(400).json({

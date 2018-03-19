@@ -30,10 +30,10 @@ app.use(
 
 var storage =   multer.diskStorage({
   destination: function (req, file, callback) {
-    callback(null, 'public/upload');
+    callback(null, 'public/documents');
   },
   filename: function (req, file, callback) {
-    var fileUrl = file.originalname;
+    var fileUrl = file.originalname + '?' + Date.now();
     callback(null, fileUrl);
   }
 });
@@ -72,8 +72,8 @@ const isAuth = (req, res, next) => {
 
 app.use("/api", api);
 
-app.use("/upload/:file", (req, res) => { // isAuth
-  res.sendFile(path.resolve(__dirname, "./public/upload", req.params.file));
+app.use("/documents/:file", (req, res) => { // isAuth
+  res.sendFile(path.resolve(__dirname, "./public/documents", req.params.file + '?' + Object.keys(req.query)[0]));
 });
 
 app.use("/", (req, res) => {

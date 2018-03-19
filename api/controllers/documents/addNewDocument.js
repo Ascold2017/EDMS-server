@@ -8,12 +8,13 @@ const cyrToLat = require('../../../lib/cyrToLat')
 module.exports = (req, res) => {
   console.log(req.file, req.body);
   // save directory
-  let dir = '/upload/' + req.file.filename;
+  console.log(req.file)
+  let dir = '/documents/' + req.file.filename;
   // parsing array from json
   let fieldsRoutes = JSON.parse(req.body.routes);
 
   // create sigFile
-  const sigFilePath = `/upload/${cyrToLat(req.file.filename)}.sig`
+  const sigFilePath = `/documents/${req.file.filename}.sig`
   fs.writeFileSync(`${__dirname}/../../../public${sigFilePath}`, '', 'utf-8')
   // add document (files and fields) to BD
   let newDocument = new documents({
