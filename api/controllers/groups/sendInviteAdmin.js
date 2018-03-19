@@ -9,7 +9,7 @@ module.exports = (req, res) => {
   let groupName = ''
   Groups.findOne({ 'users._id': req.body.adminId })
     .then(group => {
-      const hashSalt = cryptoPass.setPassword(req.body.password)
+      const hashSalt = cryptoPass.setPassword(randomizer(6))
       groupName = group.name
       const admin = group.users.find(user => user._id == req.body.adminId)
       admin.email = req.body.email
