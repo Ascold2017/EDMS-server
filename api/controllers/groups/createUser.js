@@ -53,7 +53,7 @@ function generateAndSendKeys (keysOptions, userOptions) {
         )
       })
       .then(() => {
-        fs.writeFile(`${__dirname}/../../../public/upload/${pubKeyName}`, pubKey, 'utf-8', (err) => {
+        fs.writeFile(`${__dirname}/../../../public/keys/${pubKeyName}`, pubKey, 'utf-8', (err) => {
           if (err) throw err
           resolve('/upload/' + pubKeyName)
         })

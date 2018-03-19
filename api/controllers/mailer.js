@@ -10,12 +10,12 @@ module.exports = ({ group, adress, email, login, password, subject }) => {
       from: `"Администратор EDMS" <ascold96@gmail.com>`,
       to: email,
       subject,
-      text: `Здравствуйте!\n
-      Администрация EDMS уведомляет вас, что вы получили доступ администратора в группе ${group}\n
-      Для авторизации перейдите по адресу: ${adress}\n
-      Ваш логин EDMS: ${login} \n
-      Ваш пароль для входа: ${password}\n
-      Не говорите их никому!`,
+      html: `<h3>Здравствуйте!</h3>
+      <p>Администрация EDMS уведомляет вас, что вы получили доступ администратора в группе <b>${group}</b></p>
+      <p>Для авторизации перейдите по адресу: <a href=${adress}>${adress}</a></b></p>
+      <p>Ваш логин EDMS: <b>${login}</b></p>
+      <p>Ваш пароль для входа: <b>${password}</b></p>
+      <p><b>Не говорите их никому!</b></p>`,
     };
     //отправляем почту
     transporter.sendMail(mailOptions)
