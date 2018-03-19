@@ -4,17 +4,18 @@ const jwt = require('jwt-simple');
 const config = require('../../../config');
 const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
+const randomizer = require('../../../lib/randomizer')
 
 module.exports = (req, res) => {
-  const hashSalt = cryptoPass.setPassword(req.body.adminPassword)
+  const hashSalt = cryptoPass.setPassword(randomizer(6))
   const newGroupBody = {
     name: req.body.name,
-    groupInvite: req.body.invite,
+    groupInvite: randomizer(5),
     users: [{
       author: 'Администратор группы ' + req.body.name,
       role: 'Admin',
-      token: req.body.adminInvite,
-      login: req.body.adminLogin,
+      token: randomizer(5),
+      login: randomizer(5),
       hash: hashSalt.hash,
       salt: hashSalt.salt,
       email: req.body.adminEmail,

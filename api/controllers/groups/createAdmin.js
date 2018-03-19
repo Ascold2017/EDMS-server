@@ -4,9 +4,10 @@ const jwt = require('jwt-simple');
 const config = require('../../../config');
 const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
+const randomizer = require('../../../lib/randomizer')
 
 module.exports = (req, res) => {
-  const hashSalt = cryptoPass.setPassword(req.body.adminPassword)
+  const hashSalt = cryptoPass.setPassword(randomizer(6))
   let groupName = ''
   Groups.findById(req.body.groupId)
     .then(group => {
@@ -15,8 +16,8 @@ module.exports = (req, res) => {
       group.users.push({
         author: 'Администратор группы ' + groupName,
         role: group.groupInvite === 'superAdminGroup' ? 'superAdmin' : 'Admin',
-        login: req.body.adminLogin,
-        token: req.body.adminInvite,
+        login:  randomizer(5),
+        token:  randomizer(5),
         hash: hashSalt.hash,
         salt: hashSalt.salt,
         email: req.body.adminEmail,

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Groups = mongoose.model("groups");
 const mailer = require('./../mailer');
 const cryptoPass = require('../../../lib/cryptoPass')
+const randomizer = require('../../../lib/randomizer')
 
 module.exports = (req, res) => {
   let adminLogin = ''
@@ -23,7 +24,7 @@ module.exports = (req, res) => {
         adress: req.hostname,
         email: req.body.email,
         login: adminLogin,
-        password: req.body.password,
+        password: randomizer(6),
         subject: 'Доступы администратора группы: ' + groupName
       })
     )
