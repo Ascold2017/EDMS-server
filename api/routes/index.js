@@ -54,10 +54,12 @@ router.post('/mail', isAuth, (req, res) => {
     .catch(e => res.status(400).json(e))
 });
 
-router.post('/signIn', index.signIn);
-router.post('/signInAdmin', index.signInAdmin);
-router.post('/logout', index.logout);
+router.post('/signIn', index.signIn)
+router.post('/signInAdmin', index.signInAdmin)
+router.post('/logout', index.logout)
 
-router.get('/getDocsStat', stat.getDocsStat);
+router.get('/getDocsStat', stat.getDocsStat)
+
+router.get('/checkSigns/:id', documents.checkSigns)
 
 module.exports = router;

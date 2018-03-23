@@ -3,6 +3,7 @@ const documents = mongoose.model("documents");
 const jwt = require('jwt-simple');
 const config = require('../../../config');
 
+
 // get document, which can see user
 module.exports = (req, res) => {
 
@@ -28,7 +29,7 @@ module.exports = (req, res) => {
     })
     .catch(e =>
       res.status(404).json({
-        message: `Произошла ошибка:  + ${e.message}`
+        message: `Произошла ошибка:  + ${e.message || e}`
       })
     );
 };

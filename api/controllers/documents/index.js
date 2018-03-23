@@ -10,6 +10,7 @@ import getOurPreviews from './getOurPreviews'
 import getPresets from './getPresets'
 import getPreviews from './getPreviews'
 import postSign from './postSign'
+import checkSigns from './checkSigns'
 
 module.exports.addNewDocument = addNewDocument
 module.exports.addNewVersion = addNewVersion
@@ -23,3 +24,4 @@ module.exports.getOurPreviews = getOurPreviews
 module.exports.getPresets = getPresets
 module.exports.getPreviews = getPreviews
 module.exports.postSign = postSign
+module.exports.checkSigns = checkSigns
