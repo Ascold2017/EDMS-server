@@ -4,8 +4,11 @@ const fs = require('fs');
 const openpgp = require('openpgp')
 
 function verifySign (index, sigs, file, routes) {
+  if (!sigs[index]) return Promise.resolve('Все подписи верифицированы!')
   const publicDir = __dirname + '/../../../public'
   const pubKey = fs.readFileSync(publicDir + routes[index].publicKey, 'utf-8')
+  console.log(index)
+  console.log(sigs[index])
   const verifyOptions = {
     message: openpgp.message.fromBinary(file), // input as Message object
     signature: openpgp.signature.readArmored(sigs[index]), // parse detached signature
@@ -25,6 +28,7 @@ function verifySign (index, sigs, file, routes) {
         resolve(`Подпись ${routes[index].author} невалидна!`)
       }
     })
+    .catch(e => console.log(e))
   })
 }
 

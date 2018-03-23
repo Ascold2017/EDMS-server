@@ -28,7 +28,7 @@ router.get('/getDocument/:id', isAuth, documents.getDocumentById);
 router.get('/getMyDocument/:id', isAuth, documents.getMyDocumentById);
 router.get('/getDocPresets', isAuth, documents.getPresets);
 router.get('/getOurDocuments', isAuth, documents.getOurPreviews);
-router.get('/getArchiveDocuments', isAuth, documents.getOurPreviews);
+router.get('/getArchiveDocuments', isAuth, documents.getArchievePreviews);
 router.get('/getArchiveDocument/:id', isAuth, documents.getArchieveDocument);
 
 router.post('/postVote', isAuth, documents.postSign);
