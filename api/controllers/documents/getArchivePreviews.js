@@ -6,7 +6,6 @@ const config = require('../../../config');
 module.exports = (req, res) => {
 
   let token = jwt.decode(req.headers['token'], config.token.secretKey);
-
   documents
     .find({
       groupToken: token.userGroup, // only in current users group

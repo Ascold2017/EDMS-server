@@ -28,7 +28,7 @@ router.get('/getDocument/:id', isAuth, documents.getDocumentById);
 router.get('/getMyDocument/:id', isAuth, documents.getMyDocumentById);
 router.get('/getDocPresets', isAuth, documents.getPresets);
 router.get('/getOurDocuments', isAuth, documents.getOurPreviews);
-router.get('/getArchiveDocuments', isAuth, documents.getOurPreviews);
+router.get('/getArchiveDocuments', isAuth, documents.getArchievePreviews);
 router.get('/getArchiveDocument/:id', isAuth, documents.getArchieveDocument);
 
 router.post('/postVote', isAuth, documents.postSign);
@@ -54,10 +54,12 @@ router.post('/mail', isAuth, (req, res) => {
     .catch(e => res.status(400).json(e))
 });
 
-router.post('/signIn', index.signIn);
-router.post('/signInAdmin', index.signInAdmin);
-router.post('/logout', index.logout);
+router.post('/signIn', index.signIn)
+router.post('/signInAdmin', index.signInAdmin)
+router.post('/logout', index.logout)
 
-router.get('/getDocsStat', stat.getDocsStat);
+router.get('/getDocsStat', stat.getDocsStat)
+
+router.get('/checkSigns/:id', documents.checkSigns)
 
 module.exports = router;
