@@ -6,7 +6,7 @@ const config = require('../../../config');
 
 module.exports = (req, res) => {
   Groups
-    .find({ groupInvite: req.params.token },{ 'users.hash': 0, 'users.salt': 0 } )
+    .findOne({ groupInvite: req.params.token },{ 'users.hash': 0, 'users.salt': 0 } )
     .then(groups => res.status(201).json(groups))
     .catch(e => console.error(e));
 }

@@ -5,7 +5,7 @@ const config = require('../../../config');
 const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
 const randomizer = require('../../../lib/randomizer').default
-console.log('Rand: ', randomizer(10))
+
 module.exports = (req, res) => {
   let groupName = ''
   const login = randomizer(5)
