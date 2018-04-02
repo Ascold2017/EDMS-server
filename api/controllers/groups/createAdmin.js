@@ -4,11 +4,13 @@ const jwt = require('jwt-simple');
 const config = require('../../../config');
 const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
-const randomizer = require('../../../lib/randomizer')
-
+const randomizer = require('../../../lib/randomizer').default
+console.log('Rand: ', randomizer(10))
 module.exports = (req, res) => {
-  const hashSalt = cryptoPass.setPassword(randomizer(6))
   let groupName = ''
+  const login = randomizer(5)
+  const password = randomizer(6)
+  const hashSalt = cryptoPass.setPassword(password)
   Groups.findById(req.body.groupId)
     .then(group => {
       if (!group) throw new Error('Группа не существует!')
@@ -16,7 +18,7 @@ module.exports = (req, res) => {
       group.users.push({
         author: 'Администратор группы ' + groupName,
         role: group.groupInvite === 'superAdminGroup' ? 'superAdmin' : 'Admin',
-        login:  randomizer(5),
+        login:  login,
         token:  randomizer(5),
         hash: hashSalt.hash,
         salt: hashSalt.salt,
@@ -28,9 +30,11 @@ module.exports = (req, res) => {
     })
     .then(() => {
       return mailer({
+        group: groupName,
+        adress: req.hostname,
         email: req.body.adminEmail,
-        login: req.body.adminLogin,
-        password: req.body.adminPassword,
+        login: login,
+        password: password,
         subject: 'Данные авторизации администратора группы '+ groupName })
     })
     .then(() =>
