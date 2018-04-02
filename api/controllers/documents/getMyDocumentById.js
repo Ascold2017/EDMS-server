@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
-const documents = mongoose.model("documents");
-const jwt = require('jwt-simple');
-const config = require('../../../config');
+const mongoose = require("mongoose")
+const documents = mongoose.model("documents")
+const jwt = require('jwt-simple')
+const config = require('../../../config')
 
 // get document, whic publicate user
 module.exports = (req, res) => {
 
-  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+  let token = jwt.decode(req.headers['token'], config.token.secretKey)
 
   documents
     .findOne({
@@ -16,14 +16,14 @@ module.exports = (req, res) => {
     })
     .then(item => {
       if (!item) {
-        throw new Error("Документ не найден");
-        return;
+        throw new Error("Документ не знайден")
+        return
       }
-      res.status(201).json(item);
+      res.status(201).json(item)
     })
     .catch(e =>
       res.status(404).json({
-        message: `Произошла ошибка:  + ${e.message}`
+        message: `Виникла помилка:  + ${e.message}`
       })
-    );
-};
+    )
+}

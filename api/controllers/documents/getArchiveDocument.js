@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
-const documents = mongoose.model("documents");
-const jwt = require('jwt-simple');
-const config = require('../../../config');
+const mongoose = require("mongoose")
+const documents = mongoose.model("documents")
+const jwt = require('jwt-simple')
+const config = require('../../../config')
 
 module.exports = (req, res) => {
-  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+  let token = jwt.decode(req.headers['token'], config.token.secretKey)
 
   documents
     .findOne({
@@ -22,7 +22,7 @@ module.exports = (req, res) => {
         .status(400)
         .json({
           message:
-            "При поиске архивного документов произошла ошибка" + err.message
+            "При пошуку архівних документів виникла помилка" + err.message
         })
-    );
+    )
 }

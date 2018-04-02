@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const Groups = mongoose.model("groups");
-const mailer = require('./../mailer');
+const mongoose = require("mongoose")
+const Groups = mongoose.model("groups")
+const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
 const randomizer = require('../../../lib/randomizer')
 
@@ -25,9 +25,9 @@ module.exports = (req, res) => {
         email: req.body.email,
         login: adminLogin,
         password: randomizer(6),
-        subject: 'Доступы администратора группы: ' + groupName
+        subject: 'Доступи адміністратора групи: ' + groupName
       })
     )
-    .then(() => res.status(200).json({ message: 'Доступы успешно отправлены на почту!' }))
-    .catch(e => res.status(400).json({ message: 'При попытки отправки доступов произошла ошибка: ' + e.message }))
+    .then(() => res.status(200).json({ message: 'Доступи успішно відправлені на почту!' }))
+    .catch(e => res.status(400).json({ message: 'При спробі відправки доступів виникла помилка: ' + e.message }))
 }

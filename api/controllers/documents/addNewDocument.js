@@ -1,17 +1,15 @@
-const mongoose = require("mongoose");
-const documents = mongoose.model("documents");
-const jwt = require('jwt-simple');
-const config = require('../../../config');
+const mongoose = require("mongoose")
+const documents = mongoose.model("documents")
+const jwt = require('jwt-simple')
+const config = require('../../../config')
 const fs = require('fs')
 const cyrToLat = require('../../../lib/cyrToLat')
 // create new document
 module.exports = (req, res) => {
-  console.log(req.file, req.body);
-  // save directory
-  console.log(req.file)
-  let dir = '/documents/' + req.file.filename;
+
+  let dir = '/documents/' + req.file.filename
   // parsing array from json
-  let fieldsRoutes = JSON.parse(req.body.routes);
+  let fieldsRoutes = JSON.parse(req.body.routes)
 
   // create sigFile
   const sigFilePath = `/documents/${req.file.filename}.sig`
@@ -37,18 +35,17 @@ module.exports = (req, res) => {
         sigFile: sigFilePath
       }
     ]
-  });
-  newDocument.routes[0].dateIncoming = Date.now();
-  console.log(newDocument);
+  })
+  newDocument.routes[0].dateIncoming = Date.now()
 
   newDocument
     .save()
     .then(() =>
-      res.status(201).json({ message: "Документ успешно опубликован" })
+      res.status(201).json({ message: "Документ успішно опублікован" })
     )
     .catch(e =>
       res.status(400).json({
-        message: `При добавление документа произошла ошибка:  + ${e.message}`
+        message: `При додаванні документ виникла помилка: ${e.message}`
       })
-    );
-};
+    )
+}

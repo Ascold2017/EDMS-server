@@ -3,7 +3,7 @@ const Groups = mongoose.model("groups")
 const openpgp = require('openpgp')
 const mailKeys = require('./../mailKeys')
 const cyrToLat = require('../../../lib/cyrToLat')
-const fs = require('fs');
+const fs = require('fs')
 import randomizer from '../../../lib/randomizer'
 
 // generate passphrase, contain 2-6 words by 2-10 letters every word
@@ -25,7 +25,6 @@ function generateAndSendKeys (keysOptions, userOptions) {
   const pubKeyName = `publicKey_${userName}.key`
   const privateKeyName = `privateKey_${userName}.key`
   const passphrase = generatePassphrase()
-  console.log(passphrase)
   const options = {
     userIds: [{
       name: userName,
@@ -41,7 +40,6 @@ function generateAndSendKeys (keysOptions, userOptions) {
     openpgp.generateKey(options)
       .then(keys => {
         pubKey = keys.publicKeyArmored
-        console.log(passphrase)
         return mailKeys(
           userOptions.hostname,
           userOptions.name,
@@ -55,15 +53,14 @@ function generateAndSendKeys (keysOptions, userOptions) {
       .then(() => {
         fs.writeFile(`${__dirname}/../../../public/keys/${pubKeyName}`, pubKey, 'utf-8', (err) => {
           if (err) throw err
-          resolve('/upload/' + pubKeyName)
+          resolve('/keys/' + pubKeyName)
         })
       })
-      .catch(e => { console.log(e); reject(e) })
+      .catch(e => reject(e))
   })
 }
 
 module.exports = (req, res) => {
-  console.log(req.body);
   Groups
     .findById(req.body.group)
     .then(group => {
@@ -85,6 +82,6 @@ module.exports = (req, res) => {
         return  group.save()
       })
     })
-    .then(() => res.status(201).json({ message: "Пользователь успешно создан" }))
-    .catch(e => res.status(400).json({message: `При создании пользователя произошла ошибка:  + ${e.message}`}));
-};
+    .then(() => res.status(201).json({ message: "Користувач успішно створен" }))
+    .catch(e => res.status(400).json({message: `При створенні користувача виникла помилка: ${e.message}`}))
+}

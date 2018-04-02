@@ -1,11 +1,12 @@
-const mongoose = require("mongoose");
-const documents = mongoose.model("documents");
-const jwt = require('jwt-simple');
-const config = require('../../../config');
+const mongoose = require("mongoose")
+const documents = mongoose.model("documents")
+const jwt = require('jwt-simple')
+const config = require('../../../config')
 
 module.exports = (req, res) => {
 
-  let token = jwt.decode(req.headers['token'], config.token.secretKey);
+  let token = jwt.decode(req.headers['token'], config.token.secretKey)
+  
   documents
     .find({
       groupToken: token.userGroup, // only in current users group
@@ -22,7 +23,7 @@ module.exports = (req, res) => {
         .status(400)
         .json({
           message:
-            "При поиске ахивных документов произошла ошибка" + err.message
+            "При пошуку арівних документів виникла помилка" + err.message
         })
-    );
-};
+    )
+}
