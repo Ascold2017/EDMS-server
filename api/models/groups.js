@@ -4,12 +4,10 @@ const Schema = mongoose.Schema;
 const uniqueValidator = require('mongoose-unique-validator');
 const GroupsShema = new Schema({
   name: {
-    type: String,
-    required: [true, 'Укажите название группы']
+    type: String
   },
   groupInvite: {
-    type: String,
-    required: [true, 'Укажите инвайт группы']
+    type: String
   },
   users: [
     {

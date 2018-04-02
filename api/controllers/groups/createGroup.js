@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const Groups = mongoose.model("groups");
-const jwt = require('jwt-simple');
-const config = require('../../../config');
+const mongoose = require("mongoose")
+const Groups = mongoose.model("groups")
+const jwt = require('jwt-simple')
+const config = require('../../../config')
 const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
 const randomizer = require('../../../lib/randomizer')
@@ -21,9 +21,8 @@ module.exports = (req, res) => {
       email: req.body.adminEmail,
       dateRegistration: Date.now()
      }]
-  };
-  const newGroup = new Groups(newGroupBody);
-  console.log(newGroup);
+  }
+  const newGroup = new Groups(newGroupBody)
   newGroup
     .save()
     .then(() => {
@@ -31,13 +30,12 @@ module.exports = (req, res) => {
         email: req.body.adminEmail,
         login: req.body.adminLogin,
         password: req.body.adminPassword,
-        subject: 'Данные авторизации администратора группы '+ req.body.name })
+        subject: 'Дані авторизації адміністратора групи '+ req.body.name })
     })
-    .then(() => res.status(201).json({ message: "Группа успешно создана!\nПриглашение администратору отправлено на <"+ req.body.adminEmail+">\n"}))
+    .then(() => res.status(201).json({ message: "Група успішно створена!\nЗапрошення адміністратору відправлено на <"+ req.body.adminEmail+">\n"}))
     .catch(e => {
-      console.log(e.message);
       res.status(400).json({
-        message: `При создании группы произошла ошибка:  + ${e.message}`
+        message: `При створенні групи виникла помилка:  + ${e.message}`
       })
-    });
-};
+    })
+}

@@ -10,17 +10,12 @@ const jwt = require('jwt-simple');
 const config = require('../../config');
 
 const isAuth = (req, res, next) => {
-  // если в сессии текущего пользователя есть пометка о том, что он является
   if (req.headers['token'] === 'null') {
-    console.log('no token');
     res.sendStatus(401);
   }
   else if (jwt.decode(req.headers['token'], config.token.secretKey).isAuth) {
-    //то всё хорошо
     return next();
   }
-  //если нет, то перебросить пользователя на главную страницу сайта
-  // res.redirect("/");
 };
 
 router.get('/getPreviews', isAuth, documents.getPreviews);

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const DocumentShema = new Schema({
     title: {
         type: String,
-        required: [true, 'Укажите название документа']
+        required: [true, 'Вкажіть назву документа']
     },
     date: {
         type: String,

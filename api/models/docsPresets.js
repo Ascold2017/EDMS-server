@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const DocumentPresetShema = new Schema({
     title: {
         type: String,
-        required: [true, 'Укажите название пресета']
+        required: [true, 'Вкажіть названу списку']
     },
     group: {
         type: String,
