@@ -4,10 +4,11 @@ const jwt = require('jwt-simple')
 const config = require('../../../config')
 const mailer = require('./../mailer')
 const cryptoPass = require('../../../lib/cryptoPass')
-const randomizer = require('../../../lib/randomizer')
+const randomizer = require('../../../lib/randomizer').default
 
 module.exports = (req, res) => {
-  const hashSalt = cryptoPass.setPassword(randomizer(6))
+  const password = randomizer(6)
+  const hashSalt = cryptoPass.setPassword(password)
   const newGroupBody = {
     name: req.body.name,
     groupInvite: randomizer(5),
@@ -27,9 +28,11 @@ module.exports = (req, res) => {
     .save()
     .then(() => {
       return mailer({
-        email: req.body.adminEmail,
-        login: req.body.adminLogin,
-        password: req.body.adminPassword,
+        group: req.body.name,
+        adress: req.hostname,
+        email: newGroupBody.users[0].email,
+        login: newGroupBody.users[0].login,
+        password: password,
         subject: 'Дані авторизації адміністратора групи '+ req.body.name })
     })
     .then(() => res.status(201).json({ message: "Група успішно створена!\nЗапрошення адміністратору відправлено на <"+ req.body.adminEmail+">\n"}))

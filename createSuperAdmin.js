@@ -67,23 +67,27 @@ rl.on("close", () => {
         author,
         role,
         token,
+        email,
         hash: crypto.hash,
-        salt: crypto.salt
+        salt: crypto.salt,
+        dateRegistration: Date.now().toString()
       }
     ]
   });
   group.save()
   .then(() => {
     console.log('Успешно добавлен');
-    const request = {
-      body: {
-        login,
-        token,
-        groupInvite,
-        email
-      }
-    }
-    mailer(request, res);
+    return mailer({
+      group: groupInvite,
+      adress: 'Test',
+      email,
+      login,
+      password,
+      subject: 'Доступи Першого суперадміністратора EDMS'
+    });
+  })
+  .then(res => {
+    console.log(res)
   })
   .catch(err => console.error(err));
   //пытаемся найти пользователя с таким логином
