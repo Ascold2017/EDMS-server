@@ -19,6 +19,6 @@ module.exports = ({ group, adress, email, login, password, subject }) => {
     //отправляем почту
     transporter.sendMail(mailOptions)
     .then(() => resolve({result: true}))
-    .catch(e => reject({ error: 'Виникла помилка при відправці!' }))
+    .catch(e => reject({ error: 'Виникла помилка при відправці!' + e.message }))
   })
 } 
