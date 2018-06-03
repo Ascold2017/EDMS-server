@@ -9,6 +9,7 @@ const publicPath = __dirname + '/../../../public'
 module.exports = (req, res) => {
   documents.findById(req.body.id)
   .then(doc => {
+    console.log(doc)
     // find author of vote in routes and his route index in routes
     let currentIndex = 0
     let author = doc.routes.find((route, index) => {
@@ -31,6 +32,7 @@ module.exports = (req, res) => {
 
     if (req.body.vote === 'resolve') {
 
+      console.log(author)
       const fileDocument = fs.readFileSync(publicPath + doc.versions[0].file)
       const publicKeyFile = fs.readFileSync(publicPath + author.publicKey, 'utf-8')
       let sigFile = fs.readFileSync(publicPath + doc.versions[0].sigFile, 'utf-8')
